@@ -6,10 +6,11 @@ source "scripts/env.sh"
 count=0
 succ_count=0
 
-mkdir -p "$ROOT/results"
+RES_BASE="$ROOT/results/Test-Suite/SVF"
+mkdir -p "$RES_BASE"
 
 for td in $TSUIT_BC_DIRS; do
-  results_dir="$ROOT/results/$td"
+  results_dir="$RES_BASE/$td"
   mkdir -p "$results_dir"
   
   # Skip if directory doesn't exist
