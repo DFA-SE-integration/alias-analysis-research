@@ -6,9 +6,9 @@ ROOT := $(abspath .)
 
 BOOTSTRAP    := scripts/00_bootstrap_ubuntu24.sh
 CHECKOUT     := scripts/01_checkout_sources.sh
-BUILD_PHASAR := scripts/03_build_phasar.sh
-BUILD_SVF    := scripts/03_build_SVF.sh
-BUILD_SEADSA := scripts/03_build_seadsa.sh
+BUILD_PHASAR := scripts/02_build_phasar.sh
+BUILD_SVF    := scripts/02_build_SVF.sh
+BUILD_SEADSA := scripts/02_build_seadsa.sh
 RUN_PTA         := scripts/06_run_phasar_pta.sh
 RUN_SVF_PTA     := scripts/06_run_svf_pta.sh
 RUN_SEADSA_PTA  := scripts/06_run_seadsa_pta.sh
@@ -16,7 +16,7 @@ ENVSH           := scripts/env.sh
 
 DOCKER_IMAGE := alias-analysis-ubuntu24
 
-.PHONY: help doctor bootstrap checkout phasar svf seadsa env \
+.PHONY: help doctor bootstrap checkout phasar seadsa svf env \
         clean-results clean-builds clean-all \
         distclean \
         docker-image docker-shell docker-run docker-shell-ssh docker-run-ssh
@@ -27,15 +27,15 @@ help:
 	@echo "  make bootstrap            - apt deps (Ubuntu 24.04)"
 	@echo "  make checkout             - clone phasar, SVF, sea-dsa, test-projects"
 	@echo "  make phasar               - build phasar-cli"
-	@echo "  make svf                  - build SVF (wpa)"
 	@echo "  make seadsa               - build SeaDSA"
+	@echo "  make svf                  - build SVF (wpa)"
 	@echo "  make env                  - verify env.sh can be sourced"
 	@echo "  make all                  - checkout + phasar"
 	@echo ""
 	@echo "Docker (Ubuntu 24 x86_64):"
-	@echo "  make docker-image         - build image $(DOCKER_IMAGE) (linux/amd64)"
-	@echo "  make docker-shell     - run interactive shell in container + mount ~/.ssh (repo mounted)"
-	@echo "  make docker-run-ssh target=T - run 'make T' in container + mount ~/.ssh (e.g. target=all)"
+	@echo "  make docker-image         	- build image $(DOCKER_IMAGE) (linux/amd64)"
+	@echo "  make docker-shell     		- run interactive shell in container + mount ~/.ssh (repo mounted)"
+	@echo "  make docker-run target=T 	- run 'make T' in container + mount ~/.ssh (e.g. target=all)"
 	@echo ""
 	@echo "Clean:"
 	@echo "  make clean-results        - remove results/*"
@@ -64,11 +64,11 @@ checkout:
 phasar:
 	bash "$(BUILD_PHASAR)"
 
-svf:
-	bash "$(BUILD_SVF)"
-
 seadsa:
 	bash "$(BUILD_SEADSA)"
+
+svf:
+	bash "$(BUILD_SVF)"
 
 env:
 	source "$(ENVSH)" >/dev/null
@@ -77,6 +77,7 @@ env:
 all: checkout phasar
 
 # ---------------- DOCKER (Ubuntu 24 x86) ----------------
+
 docker-image:
 	docker build --platform linux/amd64 -t "$(DOCKER_IMAGE)" -f "$(ROOT)/Dockerfile" "$(ROOT)"
 
