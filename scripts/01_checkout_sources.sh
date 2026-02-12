@@ -9,6 +9,7 @@ clone_if_missing () {
   local dir="$2"
   local commit="$3"
   if [[ ! -d "$dir/.git" ]]; then
+    git config --global --add safe.directory "$dir" && \
     git clone --depth 1 --no-checkout "$url" "$dir" && \
     cd "$dir" && \
     git fetch origin "$commit" --depth 1 && \

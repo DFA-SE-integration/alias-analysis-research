@@ -6,20 +6,23 @@ ROOT := $(abspath .)
 
 DOCKER_BOOTSTRAP    := scripts/docker/00_bootstrap_ubuntu24.sh
 
-CHECKOUT     := scripts/01_checkout_sources.sh
-BUILD_PHASAR := scripts/02_build_phasar.sh
-BUILD_SVF    := scripts/02_build_SVF.sh
-BUILD_SEADSA := scripts/02_build_seadsa.sh
-RUN_PTA         := scripts/06_run_phasar_pta.sh
-RUN_SVF_PTA     := scripts/06_run_svf_pta.sh
-RUN_SEADSA_PTA  := scripts/06_run_seadsa_pta.sh
-ENVSH           := scripts/env.sh
+CHECKOUT     		:= scripts/01_checkout_sources.sh
 
-DOCKER_IMAGE := alias-analysis-ubuntu24
+BUILD_PHASAR 		:= scripts/02_build_phasar.sh
+BUILD_SVF    		:= scripts/02_build_svf.sh
+BUILD_SEADSA 		:= scripts/02_build_seadsa.sh
+
+BUILD_TESTSUITE 	:= scripts/03_build_testsuite.sh
+BUILD_PTRBENCH  	:= scripts/03_build_ptrbench.sh
+
+RUN_SVF_TSUITE     	:= scripts/04_run_svf_tsuite.sh
+ENVSH           	:= scripts/env.sh
+
+DOCKER_IMAGE 		:= alias-analysis-ubuntu24
 
 # ---------------- GENERAL TARGETS ----------------
 
-.PHONY: help doctor
+.PHONY: help doctor checkout
 
 help:
 	@echo "Targets:"
@@ -32,26 +35,40 @@ help:
 	@echo "  make doctor               - sanity-check scripts exist"
 	@echo ""
 	@echo "Tools:"
-	@echo "  make all                  - checkout + all tools"
-	@echo "  make phasar               - build phasar-cli"
-	@echo "  make seadsa               - build SeaDSA"
-	@echo "  make svf                  - build SVF (wpa)"
+	@echo "  make tools-all            - all tools"
+	@echo "  make tools-phasar         - build phasar-cli"
+	@echo "  make tools-seadsa         - build SeaDSA"
+	@echo "  make tools-svf            - build SVF (wpa)"
+	@echo ""
+	@echo "Tests:"
+	@echo "  make test-all             - all tests"
+	@echo "  make test-testsuit        - build Test-Suite"
+	@echo "  make test-ptrbench        - build PointerBench(C version)"
+	@echo ""
+	@echo "Run tests:"
+	@echo "  make run-svf-tsuite       - run svf tool on test-suite binaries"
 	@echo ""
 	@echo "Clean:"
-	@echo "  make clean-all            - clean all"
-	@echo "  make clean-tools          - remove tools projects(phasar, seadsa, svf)"
-	@echo "  make clean-tools-builds   - remove tools build artifacts"
-	@echo "  make clean-tests          - remove tests projects(Test-Suite, PointerBench)"
-	@echo "  make clean-results        - remove tests projects *.bc files"
+	@echo "  make clean-all              - clean all"
+	@echo "  make clean-tools            - remove tools projects(phasar, seadsa, svf)"
+	@echo "  make clean-tools-builds     - remove tools build artifacts"
+	@echo "  make clean-tests            - remove tests projects(Test-Suite, PointerBench)"
+	@echo "  make clean-tests-builds     - remove tests build artifacts"
+	@echo "  make clean-results          - remove tests projects *.bc files"
 
 doctor:
 	@test -f "$(DOCKER_BOOTSTRAP)"
 	@test -f "$(CHECKOUT)"
-	@test -f "$(ENVSH)"
 	@test -f "$(BUILD_PHASAR)"
 	@test -f "$(BUILD_SEADSA)"
 	@test -f "$(BUILD_SVF)"
+	@test -f "$(BUILD_TESTSUITE)"
+	@test -f "$(BUILD_PTRBENCH)"
+	@test -f "$(RUN_SVF_TSUITE)"
 	@echo "OK: all scripts present"
+
+checkout:
+	bash "$(CHECKOUT)"
 
 # ---------------- DOCKER (Ubuntu 24 x86) ----------------
 
@@ -68,19 +85,38 @@ docker-run: docker-image
 
 # ---------------- TOOLS ----------------
 
-.PHONY: all phasar seadsa svf
+.PHONY: tools-all tools-phasar tools-seadsa tools-svf
 
-all: phasar
-phasar:
+tools-all: tools-phasar
+tools-phasar: checkout
 	bash "$(BUILD_PHASAR)"
 
-all: seadsa
-seadsa:
+tools-all: tools-seadsa
+tools-seadsa: checkout
 	bash "$(BUILD_SEADSA)"
 
-all: svf
-svf:
+tools-all: tools-svf
+tools-svf: checkout
 	bash "$(BUILD_SVF)"
+
+# ---------------- TESTS ----------------
+
+.PHONY: test-all test-testsuit test-ptrbench
+
+test-all: test-testsuit
+test-testsuit: checkout
+	bash "$(BUILD_TESTSUITE)"
+
+test-all: test-ptrbench
+test-ptrbench: checkout
+	bash "$(BUILD_PTRBENCH)"
+
+# ---------------- RUN TESTS ----------------
+
+.PHONY: run-svf-tsuite
+
+run-svf-tsuite:
+	bash "$(RUN_SVF_TSUITE)"
 
 # ---------------- CLEAN ----------------
 
@@ -97,6 +133,10 @@ clean-tools-builds:
 clean-all: clean-tests
 clean-tests:
 	rm -rf "$(ROOT)/tests"
+
+clean-all: clean-tests-builds
+clean-tests-builds:
+	rm -rf "$(ROOT)/tests/Test-Suite/build" "$(ROOT)/tests/PointerBench/build"
 
 clean-all: clean-results
 clean-results:

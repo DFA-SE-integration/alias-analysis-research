@@ -3,14 +3,13 @@ set -euo pipefail
 
 # Задание иерархии сборки
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SVF_SRC="$ROOT/SVF"
+SVF_SRC="$ROOT/svf"
 BUILD="$SVF_SRC/build"
-export WPA_CLI="$ROOT/SVF/build/bin/wpa"
+export WPA_CLI="$ROOT/svf/build/bin/wpa"
 
 # Задание путей к тулчейну
 LLVM_VER=14
 LLVM_BIN="/usr/lib/llvm-${LLVM_VER}/bin"
-LLVM_LIB="/usr/lib/llvm-${LLVM_VER}/lib"
 LLVM_CMAKE="/usr/lib/llvm-${LLVM_VER}/lib/cmake/llvm"
 export PATH="$LLVM_BIN:$PATH"
 
@@ -31,7 +30,7 @@ test -x "$SCAN_DEPS" || { echo "ERROR: $SCAN_DEPS not found. Install clang-tools
 SVF_SANITIZER=""
 BUILD_DYN_LIB='ON'
 Z3_BIN="$ROOT/z3-4.15.4-x64-glibc-2.39/bin"
-echo "SVF: took Z3 from $Z3_BIN"
+echo "svf: took Z3 from $Z3_BIN"
 export PATH=$Z3_BIN:$PATH
 
 # Вызов cmake
