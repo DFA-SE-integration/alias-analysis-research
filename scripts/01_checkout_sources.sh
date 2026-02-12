@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-mkdir -p "$ROOT/test-projects"
+mkdir -p "$ROOT/tests"
 
 clone_if_missing () {
   local url="$1"
@@ -32,9 +32,9 @@ clone_if_missing git@github.com:seahorn/sea-dsa.git \
   "8fc33bd29b878c8975e958da594e67ba02bb42f4"
 
 clone_if_missing git@github.com:secure-software-engineering/PointerBench.git \
-  "$ROOT/test-projects/PointerBench" \
+  "$ROOT/tests/PointerBench" \
   "master"
 
 clone_if_missing git@github.com:SVF-tools/Test-Suite.git \
-  "$ROOT/test-projects/PTABen" \
+  "$ROOT/tests/Test-Suite" \
   "master"
