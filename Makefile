@@ -6,6 +6,8 @@ ROOT := $(abspath .)
 
 DOCKER_BOOTSTRAP    := scripts/docker/00_bootstrap_ubuntu24.sh
 
+RES_REPORT			:= scripts/results/report.sh
+
 CHECKOUT     		:= scripts/01_checkout_sources.sh
 
 BUILD_PHASAR 		:= scripts/02_build_phasar.sh
@@ -69,6 +71,9 @@ doctor:
 
 checkout:
 	bash "$(CHECKOUT)"
+
+report:
+	bash "$(RES_REPORT)"
 
 # ---------------- DOCKER (Ubuntu 24 x86) ----------------
 
