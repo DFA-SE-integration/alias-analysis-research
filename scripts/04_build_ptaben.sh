@@ -1,26 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Generate bitcode for PTABen (SVF-tools/Test-Suite). Idempotent: skips if test_cases_bc already populated.
-# Use FORCE=1 to regenerate.
-
+# Задание иерархии сборки
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PTABEN="$ROOT/test-projects/PTABen"
 SRC_PATH="$PTABEN/src"
 BC_PATH="$PTABEN/test_cases_bc"
 
 test_dirs="
-  basic_c_tests
-  basic_cpp_tests
-  complex_tests
-  cpp_types
-  cs_tests
-  fs_tests
-  mem_leak
-  double_free
+  basic_c_tests //
+  complex_tests //
+  cs_tests //
+  fs_tests //
+  mem_leak //
+  double_free //
   mta
-  non_annotated_tests
-  path_tests
+  non_annotated_tests //
+  path_tests //
   objtype_tests
   ae_overflow_tests
   ae_assert_tests
