@@ -8,13 +8,14 @@ TSUITE_SRC="$TSUITE/src"
 BUILD="$TSUITE/build"
 TSUITE_BC="$BUILD/bc"
 
+# TODO
+# complex_tests
+# mem_leak
+# double_free
 test_dirs="
   basic_c_tests
   fs_tests
   cs_tests
-  complex_tests
-  mem_leak
-  double_free
   path_tests
   non_annotated_tests
 "

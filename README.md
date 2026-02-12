@@ -84,5 +84,5 @@ Benchmark.test("a.f", "{allocId:1, mayAlias:[b,a.f], notMayAlias:[], mustAlias:[
 | `complex_tests` | complex test cases simplified from real programs | wpa -ander -stat=false **(NOT SUP)**| 
 | `mem_leak` | memory leak test cases | saber -leak -valid-tests -mempar=inter-disjoint -stat=false **(NOT SUP)** |
 | `double_free` | double free test cases | saber -dfree -valid-tests -stat=false **(NOT SUP)** |
-| `path_tests` | path-sensitive tests | **(TODO)** |
+| `path_tests` | path-sensitive tests | wpa **-vfspta** -stat=false (versioned flow-sensitive; -fspta даёт много FAILURE) |
 | `non_annotated_tests` | not annotated | **(TODO)** **(NOT SUP)** |

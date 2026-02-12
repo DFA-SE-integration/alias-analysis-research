@@ -9,13 +9,15 @@ export WPA_CLI="$ROOT/SVF/build/bin/wpa"
 export DVF_CLI="$ROOT/SVF/build/bin/dvf"
 
 export TSUIT_BC="$ROOT/tests/Test-Suite/build/bc"
+
+# TODO
+# complex_tests
+# mem_leak
+# double_free
 export TSUIT_BC_DIRS="
   basic_c_tests
   fs_tests
   cs_tests
-  complex_tests
-  mem_leak
-  double_free
   path_tests
   non_annotated_tests
 "

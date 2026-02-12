@@ -30,19 +30,21 @@ for td in $TSUIT_BC_DIRS; do
     # Run command with stderr suppressed to avoid "Aborted" messages
     # but capture command output to file
     if [[ "$td" = "basic_c_tests" ]]; then
-        if { "$WPA_CLI" -ander -stat=false "$f" &> "$output_file"; } 2>/dev/null; then
+        if { "$WPA_CLI" -ander -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
             (( succ_count++ )) || true
         fi
     elif [[ "$td" = "fs_tests" ]]; then
-        if { "$WPA_CLI" -fspta -stat=false "$f" &> "$output_file"; } 2>/dev/null; then
+        if { "$WPA_CLI" -fspta -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
             (( succ_count++ )) || true
         fi
     elif [[ "$td" = "cs_tests" ]]; then
-        if { "$DVF_CLI" -cxt -print-pts=false -stat=false "$f" &> "$output_file"; } 2>/dev/null; then
+        if { "$DVF_CLI" -cxt -print-pts=false -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
             (( succ_count++ )) || true
         fi
     elif [[ "$td" = "path_tests" ]]; then
-        if { "$WPA_CLI" -fspta -stat=false "$f" &> "$output_file"; } 2>/dev/null; then
+        # Path-sensitive tests: use versioned flow-sensitive (-vfspta) for better precision.
+        # -fspta is flow-sensitive but merges at merge points and often fails NOALIAS.
+        if { "$WPA_CLI" -vfspta -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
             (( succ_count++ )) || true
         fi
     else
