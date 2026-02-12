@@ -99,7 +99,7 @@ saber -dfree -valid-tests -stat=false program.bc
 | **basic_c_tests**      | wpa        | `-ander -stat=false`  | Flow-insensitive, field-sensitive. |
 | **fs_tests**          | wpa        | `-fspta -stat=false`  | Flow-sensitive тесты. |
 | **cs_tests**          | dvf        | `-cxt -print-pts=false -stat=false` | Context-sensitive тесты. |
-| **path_tests**        | wpa        | `-fspta -stat=false`  | Path-sensitive тесты (в скриптах те же опции, что fs_tests). |
+| **path_tests**        | wpa        | **`-vfspta -stat=false`** | Path-sensitive тесты; рекомендуется versioned flow-sensitive (`-vfspta`). `-fspta` даёт много FAILURE (нет path-sensitivity). |
 | **complex_tests**     | wpa        | `-ander -stat=false`  | В проекте помечено как NOT SUP. |
 | **mem_leak**          | saber      | `-leak -valid-tests -mempar=inter-disjoint -stat=false` | NOT SUP. |
 | **double_free**       | saber      | `-dfree -valid-tests -stat=false` | NOT SUP. |
@@ -107,7 +107,19 @@ saber -dfree -valid-tests -stat=false program.bc
 
 ---
 
-## 6. Общие опции (кратко)
+## 6. path_tests: почему -vfspta
+
+Категория **path_tests** проверяет сценарии, где результат зависит от ветки (if/else): на одной ветке пары указателей NOALIAS, на другой MAYALIAS. Обычный **flow-sensitive** анализ (`-fspta`) в SVF при слиянии веток объединяет состояния и теряет различие путей, поэтому многие проверки NOALIAS дают **FAILURE** (SUCCESS=1, FAILURE=21 типично для -fspta).
+
+Рекомендуемый режим для path_tests в текущем SVF:
+
+- **`wpa -vfspta -stat=false`** — **Versioned flow-sensitive** анализ; хранит версии точек-к-точкам по путям и даёт более точные NOALIAS на тестах с ветвлениями.
+
+Если `-vfspta` недоступен или падает на части тестов, можно оставить **`-fspta`** (меньше SUCCESS) или для сравнения запустить **`-ander`** (flow-insensitive; ещё консервативнее, SUCCESS по path_tests будет ещё меньше).
+
+---
+
+## 7. Общие опции (кратко)
 
 - **`-stat=false`** — отключить вывод статистики (часто используется в скриптах и тестах).
 - **`-print-pts=false`** — не печатать points-to множества (для dvf).
@@ -116,7 +128,7 @@ saber -dfree -valid-tests -stat=false program.bc
 
 ---
 
-## 7. Иерархия типов анализа в коде (PTATY)
+## 8. Иерархия типов анализа в коде (PTATY)
 
 Перечисление `PointerAnalysis::PTATY` в `svf/include/MemoryModel/PointerAnalysis.h`:
 
