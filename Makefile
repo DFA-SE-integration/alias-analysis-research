@@ -49,9 +49,9 @@ help:
 	@echo "  make test-ptrbench        - build PointerBench(C version)"
 	@echo ""
 	@echo "Run tests:"
-	@echo "  make run-tsuite-svf       - run svf tool on test-suite binaries"
 	@echo "  make run-tsuite-phasar    - run phasar tool on test-suite binaries"
 	@echo "  make run-tsuite-sdsa	   - run seadsa tool on test-suite binaries"
+	@echo "  make run-tsuite-svf       - run svf tool on test-suite binaries"
 	@echo ""
 	@echo "Clean:"
 	@echo "  make clean-all              - clean all"
@@ -59,6 +59,7 @@ help:
 	@echo "  make clean-tools-builds     - remove tools build artifacts"
 	@echo "  make clean-tests            - remove tests projects(Test-Suite, PointerBench)"
 	@echo "  make clean-tests-builds     - remove tests build artifacts"
+	@echo "  make clean-results          - remove tests running results artifacts"
 
 doctor:
 	@test -f "$(DOCKER_BOOTSTRAP)"
@@ -130,11 +131,7 @@ run-tsuite-phasar:
 
 run-tsuite: run-tsuite-sdsa
 run-tsuite-sdsa:
-	bash "$(RUN_SDSA_TSUITE)" cs
-	bash "$(RUN_SDSA_TSUITE)" butd-cs
-	bash "$(RUN_SDSA_TSUITE)" bu
-	bash "$(RUN_SDSA_TSUITE)" ci
-	bash "$(RUN_SDSA_TSUITE)" flat
+	bash "$(RUN_TSUITE_SDSA)"
 
 run-tsuite: run-tsuite-svf
 run-tsuite-svf:
@@ -142,7 +139,7 @@ run-tsuite-svf:
 
 # ---------------- CLEAN ----------------
 
-.PHONY: clean-all clean-tools clean-tools-builds clean-tests
+.PHONY: clean-all clean-tools clean-tools-builds clean-tests clean-tests-builds clean-results
 
 clean-all: clean-tools
 clean-tools:
@@ -159,3 +156,7 @@ clean-tests:
 clean-all: clean-tests-builds
 clean-tests-builds:
 	rm -rf "$(ROOT)/tests/Test-Suite/build" "$(ROOT)/tests/PointerBench/build"
+
+clean-all: clean-results
+clean-results:
+	rm -rf "$(ROOT)/results"

@@ -4,19 +4,23 @@ set -euo pipefail
 # Must be defined:
 # SRC - project source dir
 if [ ! -n "${SRC}" ]; then
-  echo "SRC not defined!"
+  echo "SRC not defined!" >&2
+  exit 1
 fi
 # CLI - path to building tool cli
 if [ ! -n "${CLI}" ]; then
-  echo "CLI not defined!"
+  echo "CLI not defined!" >&2
+  exit 1
 fi
 # CLI_TGT - name of cli build target
 if [ ! -n "${CLI_TGT}" ]; then
-  echo "CLI_TGT build target not defined!"
+  echo "CLI_TGT build target not defined!" >&2
+  exit 1
 fi
 # LLVM_VER - toolchain version
 if [ ! -n "${LLVM_VER}" ]; then
-  echo "LLVM_VER not defined!"
+  echo "LLVM_VER not defined!" >&2
+  exit 1
 fi
 
 # Если цель уже существует, выходим

@@ -5,7 +5,9 @@ source "scripts/globals.sh"
 
 # Наложение патчей PhASAR, чтобы прогнать тесты Test-Suite
 if [[ -d "$ROOT/patches/phasar" ]] && compgen -G "$ROOT/patches/phasar/"*.patch >/dev/null 2>&1; then
-  "$ROOT/scripts/apply_phasar_patches.sh" || exit 1
+  export SRC_DIR="$PHASAR_ROOT"
+  export PATCH_DIR="$ROOT/patches/phasar"
+  source "$ROOT/scripts/patch_dir.sh" || exit 1
 fi
 
 export SRC="$PHASAR_ROOT"

@@ -35,6 +35,22 @@ export TSUITE_SRC="$TEST_ROOT/Test-Suite/src"
 export TSUIT_BC_14="$ROOT/tests/Test-Suite/build/bc/llvm-14"
 export TSUIT_BC_16="$ROOT/tests/Test-Suite/build/bc/llvm-16"
 
+# Results
+export RESULTS_ROOT="$ROOT/results"
+
+# Tests
+export RESULTS_TSUITE="$RESULTS_ROOT/Test-Suite"
+
+# Tools
+export RESULTS_TSUITE_PHASAR_ANDERS="$RESULTS_TSUITE/Phasar/cflanders"
+export RESULTS_TSUITE_PHASAR_STEENS="$RESULTS_TSUITE/Phasar/cflsteens"
+export RESULTS_TSUITE_SDSA_CS="$RESULTS_TSUITE/Sea-DSA/cs"
+export RESULTS_TSUITE_SDSA_BUTD_CS="$RESULTS_TSUITE/Sea-DSA/butd-cs"
+export RESULTS_TSUITE_SDSA_BU="$RESULTS_TSUITE/Sea-DSA/bu"
+export RESULTS_TSUITE_SDSA_CI="$RESULTS_TSUITE/Sea-DSA/ci"
+export RESULTS_TSUITE_SDSA_FLAT="$RESULTS_TSUITE/Sea-DSA/flat"
+export RESULTS_TSUITE_SVF="$RESULTS_TSUITE/SVF"
+
 # TODO
 # complex_tests
 # mem_leak

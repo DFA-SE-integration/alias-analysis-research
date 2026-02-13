@@ -1,57 +1,34 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "scripts/env.sh"
+source "scripts/globals.sh"
 
-count=0
-succ_count=0
+export BC_DIR="$TSUIT_BC_14"
+export RES_DIR="$RESULTS_TSUITE_SVF"
 
-RES_BASE="$ROOT/results/Test-Suite/SVF"
-mkdir -p "$RES_BASE"
-
-for td in $TSUIT_BC_DIRS; do
-  results_dir="$RES_BASE/$td"
-  mkdir -p "$results_dir"
+run_one_file() {
+  local bc_file="$1" log_file="$2" test_dir="$3"
   
-  # Skip if directory doesn't exist
-  bc_dir="$TSUIT_BC_14/$td"
-  [[ ! -d "$bc_dir" ]] && continue
-  
-  # Process each .bc file in the directory
-  for f in "$bc_dir"/*.bc; do
-    # Skip if glob didn't match any files
-    [[ ! -f "$f" ]] && continue
-    
-    # Get basename without extension for output file
-    basename_f=$(basename "$f")
-    stem="${basename_f%.bc}"
-    output_file="$results_dir/$stem.log"
-    
-    # Run command with stderr suppressed to avoid "Aborted" messages
-    # but capture command output to file
-    if [[ "$td" = "basic_c_tests" ]]; then
-        if { "$WPA_CLI" -ander -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
-            (( succ_count++ )) || true
-        fi
-    elif [[ "$td" = "fs_tests" ]]; then
-        if { "$WPA_CLI" -fspta -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
-            (( succ_count++ )) || true
-        fi
-    elif [[ "$td" = "cs_tests" ]]; then
-        if { "$DVF_CLI" -cxt -print-pts=false -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
-            (( succ_count++ )) || true
-        fi
-    elif [[ "$td" = "path_tests" ]]; then
-        # Path-sensitive tests: use versioned flow-sensitive (-vfspta) for better precision.
-        # -fspta is flow-sensitive but merges at merge points and often fails NOALIAS.
-        if { "$WPA_CLI" -vfspta -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
-            (( succ_count++ )) || true
-        fi
-    else
-        echo "$td not supported! Support alias info" >&2
-    fi
-    (( count++ )) || true
-  done
-done
+  case "$test_dir" in
+    basic_c_tests)
+      "$WPA_CLI" -ander -print-aliases -stat=true "$bc_file" &> "$log_file"
+      ;;
+    fs_tests)
+      "$WPA_CLI" -fspta -print-aliases -stat=true "$bc_file" &> "$log_file"
+      ;;
+    cs_tests)
+      "$DVF_CLI" -cxt -print-aliases -stat=true "$bc_file" &> "$log_file"
+      ;;
+    path_tests)
+      # Path-sensitive tests: use versioned flow-sensitive (-vfspta) for better precision.
+      # -fspta is flow-sensitive but merges at merge points and often fails NOALIAS.
+      "$WPA_CLI" -vfspta -print-aliases -stat=true "$bc_file" &> "$log_file"
+      ;;
+    *)
+      echo "$test_dir not supported! Support alias info" >&2
+      return 1
+      ;;
+  esac
+}
 
-echo "OK: Successfully processed $succ_count/$count .bc file(s). Results under $ROOT/results/"
+source "scripts/run_tool.sh"
