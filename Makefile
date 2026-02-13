@@ -76,7 +76,8 @@ checkout:
 	bash "$(CHECKOUT)"
 
 report:
-	bash "$(RES_REPORT)"
+	bash "$(RES_REPORT)" Test-Suite SVF
+	bash "$(RES_REPORT)" Test-Suite Phasar
 
 # ---------------- DOCKER (Ubuntu 24 x86) ----------------
 
