@@ -20,7 +20,7 @@ test_dirs="
 "
 
 # Задание путей к тулчейну
-LLVM_VER=14
+LLVM_VER=16
 LLVM_BIN="/usr/lib/llvm-${LLVM_VER}/bin"
 LLVM_CMAKE="/usr/lib/llvm-${LLVM_VER}/lib/cmake/llvm"
 # export PATH="$LLVM_BIN:$PATH"
