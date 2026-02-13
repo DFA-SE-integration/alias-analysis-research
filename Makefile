@@ -19,6 +19,7 @@ BUILD_PTRBENCH  	:= scripts/03_build_ptrbench.sh
 
 RUN_SVF_TSUITE     	:= scripts/04_run_svf_tsuite.sh
 RUN_PHASAR_TSUITE	:= scripts/04_run_phasar_tsuite.sh
+RUN_SDSA_TSUITE		:= scripts/04_run_sdsa_tsuite.sh
 ENVSH           	:= scripts/env.sh
 
 DOCKER_IMAGE 		:= alias-analysis-ubuntu24
@@ -51,6 +52,7 @@ help:
 	@echo "Run tests:"
 	@echo "  make run-svf-tsuite       - run svf tool on test-suite binaries"
 	@echo "  make run-phasar-tsuite    - run phasar tool on test-suite binaries"
+	@echo "  make run-sdsa-tsuite	   - run seadsa tool on test-suite binaries"
 	@echo ""
 	@echo "Clean:"
 	@echo "  make clean-all              - clean all"
@@ -76,8 +78,7 @@ checkout:
 	bash "$(CHECKOUT)"
 
 report:
-	bash "$(RES_REPORT)" Test-Suite SVF
-	bash "$(RES_REPORT)" Test-Suite Phasar
+	bash "$(RES_REPORT)" Test-Suite
 
 # ---------------- DOCKER (Ubuntu 24 x86) ----------------
 
@@ -122,13 +123,20 @@ test-ptrbench: checkout
 
 # ---------------- RUN TESTS ----------------
 
-.PHONY: run-svf-tsuite
+.PHONY: run-svf-tsuite run-phasar-tsuite run-sdsa-tsuite
 
 run-svf-tsuite:
 	bash "$(RUN_SVF_TSUITE)"
 
 run-phasar-tsuite:
 	bash "$(RUN_PHASAR_TSUITE)"
+
+run-sdsa-tsuite:
+	bash "$(RUN_SDSA_TSUITE)" cs
+	bash "$(RUN_SDSA_TSUITE)" butd-cs
+	bash "$(RUN_SDSA_TSUITE)" bu
+	bash "$(RUN_SDSA_TSUITE)" ci
+	bash "$(RUN_SDSA_TSUITE)" flat
 
 # ---------------- CLEAN ----------------
 
