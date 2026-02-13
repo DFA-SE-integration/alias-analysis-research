@@ -4,9 +4,8 @@ SHELL := /bin/bash
 
 ROOT := $(abspath .)
 
+DOCKER_IMAGE 		:= alias-analysis-ubuntu24
 DOCKER_BOOTSTRAP    := scripts/docker/00_bootstrap_ubuntu24.sh
-
-RES_REPORT			:= scripts/results/report.sh
 
 CHECKOUT     		:= scripts/01_checkout_sources.sh
 
@@ -14,15 +13,15 @@ BUILD_PHASAR 		:= scripts/02_build_phasar.sh
 BUILD_SVF    		:= scripts/02_build_svf.sh
 BUILD_SEADSA 		:= scripts/02_build_seadsa.sh
 
-BUILD_TESTSUITE 	:= scripts/03_build_testsuite.sh
-BUILD_PTRBENCH  	:= scripts/03_build_ptrbench.sh
+BUILD_TESTSUITE 	:= scripts/02_build_testsuite.sh
+BUILD_PTRBENCH  	:= scripts/02_build_ptrbench.sh
 
-RUN_SVF_TSUITE     	:= scripts/04_run_svf_tsuite.sh
-RUN_PHASAR_TSUITE	:= scripts/04_run_phasar_tsuite.sh
-RUN_SDSA_TSUITE		:= scripts/04_run_sdsa_tsuite.sh
+RUN_TSUITE_PHASAR	:= scripts/03_run_tsuite_phasar.sh
+RUN_TSUITE_SDSA		:= scripts/03_run_tsuite_sdsa.sh
+RUN_TSUITE_SVF     	:= scripts/03_run_tsuite_svf.sh
+
 ENVSH           	:= scripts/env.sh
-
-DOCKER_IMAGE 		:= alias-analysis-ubuntu24
+RES_REPORT			:= scripts/results/report.sh
 
 # ---------------- GENERAL TARGETS ----------------
 
@@ -50,9 +49,9 @@ help:
 	@echo "  make test-ptrbench        - build PointerBench(C version)"
 	@echo ""
 	@echo "Run tests:"
-	@echo "  make run-svf-tsuite       - run svf tool on test-suite binaries"
-	@echo "  make run-phasar-tsuite    - run phasar tool on test-suite binaries"
-	@echo "  make run-sdsa-tsuite	   - run seadsa tool on test-suite binaries"
+	@echo "  make run-tsuite-svf       - run svf tool on test-suite binaries"
+	@echo "  make run-tsuite-phasar    - run phasar tool on test-suite binaries"
+	@echo "  make run-tsuite-sdsa	   - run seadsa tool on test-suite binaries"
 	@echo ""
 	@echo "Clean:"
 	@echo "  make clean-all              - clean all"
@@ -60,7 +59,6 @@ help:
 	@echo "  make clean-tools-builds     - remove tools build artifacts"
 	@echo "  make clean-tests            - remove tests projects(Test-Suite, PointerBench)"
 	@echo "  make clean-tests-builds     - remove tests build artifacts"
-	@echo "  make clean-results          - remove tests projects *.bc files"
 
 doctor:
 	@test -f "$(DOCKER_BOOTSTRAP)"
@@ -70,8 +68,9 @@ doctor:
 	@test -f "$(BUILD_SVF)"
 	@test -f "$(BUILD_TESTSUITE)"
 	@test -f "$(BUILD_PTRBENCH)"
-	@test -f "$(RUN_SVF_TSUITE)"
-	@test -f "$(RUN_PHASAR_TSUITE)"
+	@test -f "$(RUN_TSUITE_PHASAR)"
+	@test -f "$(RUN_TSUITE_SDSA)"
+	@test -f "$(RUN_TSUITE_SVF)"
 	@echo "OK: all scripts present"
 
 checkout:
@@ -123,24 +122,27 @@ test-ptrbench: checkout
 
 # ---------------- RUN TESTS ----------------
 
-.PHONY: run-svf-tsuite run-phasar-tsuite run-sdsa-tsuite
+.PHONY: run-tsuite run-tsuite-svf run-tsuite-phasar run-tsuite-sdsa
 
-run-svf-tsuite:
-	bash "$(RUN_SVF_TSUITE)"
+run-tsuite: run-tsuite-phasar
+run-tsuite-phasar:
+	bash "$(RUN_TSUITE_PHASAR)"
 
-run-phasar-tsuite:
-	bash "$(RUN_PHASAR_TSUITE)"
-
-run-sdsa-tsuite:
+run-tsuite: run-tsuite-sdsa
+run-tsuite-sdsa:
 	bash "$(RUN_SDSA_TSUITE)" cs
 	bash "$(RUN_SDSA_TSUITE)" butd-cs
 	bash "$(RUN_SDSA_TSUITE)" bu
 	bash "$(RUN_SDSA_TSUITE)" ci
 	bash "$(RUN_SDSA_TSUITE)" flat
 
+run-tsuite: run-tsuite-svf
+run-tsuite-svf:
+	bash "$(RUN_TSUITE_SVF)"
+
 # ---------------- CLEAN ----------------
 
-.PHONY: clean-all clean-tools clean-tools-builds clean-tests clean-results
+.PHONY: clean-all clean-tools clean-tools-builds clean-tests
 
 clean-all: clean-tools
 clean-tools:
@@ -157,7 +159,3 @@ clean-tests:
 clean-all: clean-tests-builds
 clean-tests-builds:
 	rm -rf "$(ROOT)/tests/Test-Suite/build" "$(ROOT)/tests/PointerBench/build"
-
-clean-all: clean-results
-clean-results:
-	rm -rf "$(ROOT)/results"
