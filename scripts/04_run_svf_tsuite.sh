@@ -14,7 +14,7 @@ for td in $TSUIT_BC_DIRS; do
   mkdir -p "$results_dir"
   
   # Skip if directory doesn't exist
-  bc_dir="$TSUIT_BC/$td"
+  bc_dir="$TSUIT_BC_14/$td"
   [[ ! -d "$bc_dir" ]] && continue
   
   # Process each .bc file in the directory

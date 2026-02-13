@@ -18,6 +18,7 @@ BUILD_TESTSUITE 	:= scripts/03_build_testsuite.sh
 BUILD_PTRBENCH  	:= scripts/03_build_ptrbench.sh
 
 RUN_SVF_TSUITE     	:= scripts/04_run_svf_tsuite.sh
+RUN_PHASAR_TSUITE	:= scripts/04_run_phasar_tsuite.sh
 ENVSH           	:= scripts/env.sh
 
 DOCKER_IMAGE 		:= alias-analysis-ubuntu24
@@ -49,6 +50,7 @@ help:
 	@echo ""
 	@echo "Run tests:"
 	@echo "  make run-svf-tsuite       - run svf tool on test-suite binaries"
+	@echo "  make run-phasar-tsuite    - run phasar tool on test-suite binaries"
 	@echo ""
 	@echo "Clean:"
 	@echo "  make clean-all              - clean all"
@@ -67,6 +69,7 @@ doctor:
 	@test -f "$(BUILD_TESTSUITE)"
 	@test -f "$(BUILD_PTRBENCH)"
 	@test -f "$(RUN_SVF_TSUITE)"
+	@test -f "$(RUN_PHASAR_TSUITE)"
 	@echo "OK: all scripts present"
 
 checkout:
@@ -122,6 +125,9 @@ test-ptrbench: checkout
 
 run-svf-tsuite:
 	bash "$(RUN_SVF_TSUITE)"
+
+run-phasar-tsuite:
+	bash "$(RUN_PHASAR_TSUITE)"
 
 # ---------------- CLEAN ----------------
 
