@@ -13,6 +13,11 @@ LLVM_BIN="/usr/lib/llvm-${LLVM_VER}/bin"
 LLVM_CMAKE="/usr/lib/llvm-${LLVM_VER}/lib/cmake/llvm"
 export PATH="$LLVM_BIN:$PATH"
 
+# Наложение патчей PhASAR, чтобы прогнать тесты Test-Suite
+if [[ -d "$ROOT/patches/phasar" ]] && compgen -G "$ROOT/patches/phasar/"*.patch >/dev/null 2>&1; then
+  "$ROOT/scripts/apply_phasar_patches.sh" || exit 1
+fi
+
 # Если цель уже существует, выходим
 if [[ -x "$PHASAR_CLI" ]]; then
   echo "built at $PHASAR_CLI, skipping"

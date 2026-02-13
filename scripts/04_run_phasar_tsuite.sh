@@ -27,31 +27,16 @@ for td in $TSUIT_BC_DIRS; do
     stem="${basename_f%.bc}"
     output_file="$results_dir/$stem.log"
 
-    "$PHASAR_CLI" -m "$f" -D ifds-solvertest --entry-points=__ALL__ --alias-analysis=cflanders --emit-pta-as-json --emit-stats &> "$output_file"
-    
     # Run command with stderr suppressed to avoid "Aborted" messages
     # but capture command output to file
-    # if [[ "$td" = "basic_c_tests" ]]; then
-    #     if { "$WPA_CLI" -ander -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
-    #         (( succ_count++ )) || true
-    #     fi
-    # elif [[ "$td" = "fs_tests" ]]; then
-    #     if { "$WPA_CLI" -fspta -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
-    #         (( succ_count++ )) || true
-    #     fi
-    # elif [[ "$td" = "cs_tests" ]]; then
-    #     if { "$DVF_CLI" -cxt -print-pts=false -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
-    #         (( succ_count++ )) || true
-    #     fi
-    # elif [[ "$td" = "path_tests" ]]; then
-    #     # Path-sensitive tests: use versioned flow-sensitive (-vfspta) for better precision.
-    #     # -fspta is flow-sensitive but merges at merge points and often fails NOALIAS.
-    #     if { "$WPA_CLI" -vfspta -stat=true "$f" &> "$output_file"; } 2>/dev/null; then
-    #         (( succ_count++ )) || true
-    #     fi
-    # else
-    #     echo "$td not supported! Support alias info" >&2
+    if { "$PHASAR_CLI" -m "$f" -D ifds-solvertest --entry-points=__ALL__ --alias-analysis=cflanders --emit-pta-as-json --emit-stats &> "$output_file"; } 2>/dev/null; then
+        (( succ_count++ )) || true
+    fi
+
+    # if { "$PHASAR_CLI" -m "$f" -D ifds-solvertest --entry-points=__ALL__ --alias-analysis=cflsteens --emit-pta-as-json --emit-stats &> "$output_file"; } 2>/dev/null; then
+        # (( succ_count++ )) || true
     # fi
+
     (( count++ )) || true
   done
 done
