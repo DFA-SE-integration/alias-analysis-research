@@ -8,7 +8,8 @@ export SDSA_CLI="$ROOT/sea-dsa/build/bin/seadsa"
 export WPA_CLI="$ROOT/SVF/build/bin/wpa"
 export DVF_CLI="$ROOT/SVF/build/bin/dvf"
 
-export TSUIT_BC="$ROOT/tests/Test-Suite/build/bc"
+export TSUIT_BC_14="$ROOT/tests/Test-Suite/build/bc/llvm-14"
+export TSUIT_BC_16="$ROOT/tests/Test-Suite/build/bc/llvm-16"
 
 # TODO
 # complex_tests
