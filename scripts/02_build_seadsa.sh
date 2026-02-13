@@ -13,6 +13,11 @@ LLVM_BIN="/usr/lib/llvm-${LLVM_VER}/bin"
 LLVM_CMAKE="/usr/lib/llvm-${LLVM_VER}/lib/cmake/llvm"
 export PATH="$LLVM_BIN:$PATH"
 
+# Наложение патчей Sea-DSA (если есть patches/seadsa/*.patch)
+if [[ -d "$ROOT/patches/seadsa" ]] && compgen -G "$ROOT/patches/seadsa/"*.patch >/dev/null 2>&1; then
+  "$ROOT/scripts/apply_seadsa_patches.sh" || exit 1
+fi
+
 # Если цель уже существует, выходим
 if [[ -x "$SDSA_CLI" ]]; then
   echo "already built at $SDSA_CLI, skipping"
