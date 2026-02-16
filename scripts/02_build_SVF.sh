@@ -9,4 +9,4 @@ export CLI_TGT=""
 export LLVM_VER="14"
 CMAKE_EXTRA_ARGS=(-DBUILD_SHARED_LIBS=ON -DSVF_ENABLE_ASSERTIONS:BOOL=true -DSVF_SANITIZE="")
 export CMAKE_EXTRA_ARGS
-source "scripts/cmake_build.sh"
+source "$ROOT/scripts/cmake_build.sh"

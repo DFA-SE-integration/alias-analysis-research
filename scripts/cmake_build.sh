@@ -13,10 +13,6 @@ if [ ! -n "${CLI}" ]; then
   exit 1
 fi
 # CLI_TGT - name of cli build target
-if [ ! -n "${CLI_TGT}" ]; then
-  echo "CLI_TGT build target not defined!" >&2
-  exit 1
-fi
 # LLVM_VER - toolchain version
 if [ ! -n "${LLVM_VER}" ]; then
   echo "LLVM_VER not defined!" >&2
@@ -57,7 +53,7 @@ cmake -S "$SRC" -B "$BUILD" -G Ninja \
   "${CMAKE_EXTRA_ARGS[@]}"
 
 # Сборка
-ninja -C "$BUILD" -j"$(nproc)" $CLI_TGT
+ninja -C "$BUILD" -j"$(nproc)" ${CLI_TGT}
 
 # Проверка
 test -x "$CLI"
