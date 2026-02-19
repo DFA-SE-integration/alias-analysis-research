@@ -10,3 +10,7 @@
 	path = SVF
 	url = git@github.com:DFA-SE-integration/SVF.git
 	shallow = true
+[submodule "phasar"]
+	path = phasar
+	url = git@github.com:DFA-SE-integration/phasar.git
+	shallow = true
