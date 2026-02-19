@@ -1,0 +1,4 @@
+[submodule "tests/Test-Suite"]
+	path = tests/Test-Suite
+	url = git@github.com:DFA-SE-integration/Test-Suite.git
+	shallow = true
