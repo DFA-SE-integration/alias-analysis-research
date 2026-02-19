@@ -14,3 +14,7 @@
 	path = phasar
 	url = git@github.com:DFA-SE-integration/phasar.git
 	shallow = true
+[submodule "tests/PointerBench"]
+	path = tests/PointerBench
+	url = git@github.com:DFA-SE-integration/PointerBench.git
+	shallow = true
