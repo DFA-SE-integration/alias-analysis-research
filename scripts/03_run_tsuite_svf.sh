@@ -9,24 +9,30 @@ export RES_DIR="$RESULTS_TSUITE_SVF"
 run_one_file() {
   local bc_file="$1" log_file="$2" test_dir="$3"
   
+  # Map directory names to SVF analysis types
+  # Logic:
+  # - If directory contains "path" -> use vfspta (path-sensitive)
+  # - If directory contains "context" -> use dvf -cxt (context-sensitive)
+  # - If directory contains "flow" (but not path/context) -> use fspta (flow-sensitive)
+  # - Otherwise -> use ander (flow-insensitive)
+  
   case "$test_dir" in
-    basic_c_tests)
-      "$WPA_CLI" -ander -print-aliases -stat=true "$bc_file" &> "$log_file"
-      ;;
-    fs_tests)
-      "$WPA_CLI" -fspta -print-aliases -stat=true "$bc_file" &> "$log_file"
-      ;;
-    cs_tests)
-      "$DVF_CLI" -cxt -print-aliases -stat=true "$bc_file" &> "$log_file"
-      ;;
-    path_tests)
-      # Path-sensitive tests: use versioned flow-sensitive (-vfspta) for better precision.
-      # -fspta is flow-sensitive but merges at merge points and often fails NOALIAS.
+    # New directory name patterns
+    *path*)
+      # Path-sensitive: use versioned flow-sensitive analysis
       "$WPA_CLI" -vfspta -print-aliases -stat=true "$bc_file" &> "$log_file"
       ;;
+    *context*)
+      # Context-sensitive: use DVF with context-sensitive analysis
+      "$DVF_CLI" -cxt -print-aliases -stat=true "$bc_file" &> "$log_file"
+      ;;
+    *flow*)
+      # Flow-sensitive: use flow-sensitive pointer analysis
+      "$WPA_CLI" -fspta -print-aliases -stat=true "$bc_file" &> "$log_file"
+      ;;
     *)
-      echo "$test_dir not supported! Support alias info" >&2
-      return 1
+      # Default: flow-insensitive Andersen analysis
+      "$WPA_CLI" -ander -print-aliases -stat=true "$bc_file" &> "$log_file"
       ;;
   esac
 }
