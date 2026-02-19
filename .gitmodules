@@ -6,3 +6,7 @@
 	path = sea-dsa
 	url = git@github.com:DFA-SE-integration/sea-dsa.git
 	shallow = true
+[submodule "SVF"]
+	path = SVF
+	url = git@github.com:DFA-SE-integration/SVF.git
+	shallow = true
