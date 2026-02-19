@@ -1,0 +1,61 @@
+# CI: on push to main — build tools and tests, run analyzers, generate reports.
+# Artifacts: report-Test-Suite.txt, report-PointerBench.txt, results/
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-report:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Checkout submodules (HTTPS for token auth)
+        run: |
+          sed -i 's|git@github.com:|https://github.com/|g' .gitmodules
+          git submodule sync
+          git submodule update --init --recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+          tags: alias-analysis-ubuntu24:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build tools and tests, run analyzers, generate reports
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace \
+            alias-analysis-ubuntu24:ci \
+            bash -c '
+              set -e
+              make tools-all
+              make test-all
+              make run-tsuite
+              make run-ptrbench
+              make report > report-Test-Suite.txt
+              make report-ptrbench > report-PointerBench.txt
+            '
+
+      - name: Upload report and results
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-and-results
+          path: |
+            report-Test-Suite.txt
+            report-PointerBench.txt
+            results/
