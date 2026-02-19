@@ -146,6 +146,20 @@ run-tsuite: run-tsuite-svf
 run-tsuite-svf:
 	bash "$(RUN_TSUITE_SVF)"
 
+.PHONY: run-ptrbench run-ptrbench-phasar run-ptrbench-sdsa run-ptrbench-svf report-ptrbench
+
+run-ptrbench: run-ptrbench-phasar
+run-ptrbench-phasar:
+	bash "$(RUN_PTRBENCH_PHASAR)"
+
+run-ptrbench: run-ptrbench-sdsa
+run-ptrbench-sdsa:
+	bash "$(RUN_PTRBENCH_SDSA)"
+
+run-ptrbench: run-ptrbench-svf
+run-ptrbench-svf:
+	bash "$(RUN_PTRBENCH_SVF)"
+
 # ---------------- CLEAN ----------------
 
 .PHONY: clean-all clean-tools-builds clean-tests-builds clean-results
