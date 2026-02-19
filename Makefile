@@ -7,8 +7,6 @@ ROOT := $(abspath .)
 DOCKER_IMAGE 		:= alias-analysis-ubuntu24
 DOCKER_BOOTSTRAP    := scripts/docker/00_bootstrap_ubuntu24.sh
 
-CHECKOUT     		:= scripts/01_checkout_sources.sh
-
 BUILD_PHASAR 		:= scripts/02_build_phasar.sh
 BUILD_SVF    		:= scripts/02_build_svf.sh
 BUILD_SEADSA 		:= scripts/02_build_seadsa.sh
@@ -20,50 +18,58 @@ RUN_TSUITE_PHASAR	:= scripts/03_run_tsuite_phasar.sh
 RUN_TSUITE_SDSA		:= scripts/03_run_tsuite_sdsa.sh
 RUN_TSUITE_SVF     	:= scripts/03_run_tsuite_svf.sh
 
+RUN_PTRBENCH_PHASAR	:= scripts/03_run_ptrbench_phasar.sh
+RUN_PTRBENCH_SDSA	:= scripts/03_run_ptrbench_sdsa.sh
+RUN_PTRBENCH_SVF   	:= scripts/03_run_ptrbench_svf.sh
+
 ENVSH           	:= scripts/env.sh
 RES_REPORT			:= scripts/results/report.sh
 
 # ---------------- GENERAL TARGETS ----------------
 
-.PHONY: help doctor checkout
+.PHONY: help doctor
 
 help:
 	@echo "Targets:"
 	@echo "Docker (Ubuntu 24 x86_64):"
-	@echo "  make docker-image         - build image $(DOCKER_IMAGE) (linux/amd64)"
-	@echo "  make docker-shell	    - run interactive shell in container + mount ~/.ssh (repo mounted)"
-	@echo "  make docker-run target=T  - run 'make T' in container + mount ~/.ssh (e.g. target=all)"
+	@echo "  make docker-image		- build image $(DOCKER_IMAGE) (linux/amd64)"
+	@echo "  make docker-shell		- run interactive shell in container + mount ~/.ssh (repo mounted)"
+	@echo "  make docker-run target=T 	- run 'make T' in container + mount ~/.ssh (e.g. target=all)"
 	@echo ""
 	@echo "General:"
-	@echo "  make doctor               - sanity-check scripts exist"
+	@echo "  make doctor			- sanity-check scripts exist"
 	@echo ""
 	@echo "Tools:"
-	@echo "  make tools-all            - all tools"
-	@echo "  make tools-phasar         - build phasar-cli"
-	@echo "  make tools-seadsa         - build SeaDSA"
-	@echo "  make tools-svf            - build SVF (wpa)"
+	@echo "  make tools-all		- all tools"
+	@echo "  make tools-phasar		- build phasar-cli"
+	@echo "  make tools-seadsa		- build SeaDSA"
+	@echo "  make tools-svf		- build SVF (wpa)"
 	@echo ""
 	@echo "Tests:"
-	@echo "  make test-all             - all tests"
-	@echo "  make test-testsuit        - build Test-Suite"
-	@echo "  make test-ptrbench        - build PointerBench(C version)"
+	@echo "  make test-all			- all tests"
+	@echo "  make test-testsuit		- build Test-Suite"
+	@echo "  make test-ptrbench		- build PointerBench(C version)"
 	@echo ""
 	@echo "Run tests:"
-	@echo "  make run-tsuite-phasar    - run phasar tool on test-suite binaries"
-	@echo "  make run-tsuite-sdsa	   - run seadsa tool on test-suite binaries"
-	@echo "  make run-tsuite-svf       - run svf tool on test-suite binaries"
+	@echo "  make run-tsuite-phasar	- run phasar tool on test-suite binaries"
+	@echo "  make run-tsuite-sdsa		- run seadsa tool on test-suite binaries"
+	@echo "  make run-tsuite-svf		- run svf tool on test-suite binaries"
+	@echo "  make run-ptrbench-phasar	- run phasar on PointerBench .bc"
+	@echo "  make run-ptrbench-sdsa		- run seadsa on PointerBench .bc"
+	@echo "  make run-ptrbench-svf		- run svf on PointerBench .bc"
+	@echo ""
+	@echo "Reports:"
+	@echo "  make report			- report for Test-Suite results"
+	@echo "  make report-ptrbench		- report for PointerBench results"
 	@echo ""
 	@echo "Clean:"
-	@echo "  make clean-all              - clean all"
-	@echo "  make clean-tools            - remove tools projects(phasar, seadsa, svf)"
-	@echo "  make clean-tools-builds     - remove tools build artifacts"
-	@echo "  make clean-tests            - remove tests projects(Test-Suite, PointerBench)"
-	@echo "  make clean-tests-builds     - remove tests build artifacts"
-	@echo "  make clean-results          - remove tests running results artifacts"
+	@echo "  make clean-all		- clean all"
+	@echo "  make clean-tools-builds	- remove tools build artifacts"
+	@echo "  make clean-tests-builds	- remove tests build artifacts"
+	@echo "  make clean-results		- remove tests running results artifacts"
 
 doctor:
 	@test -f "$(DOCKER_BOOTSTRAP)"
-	@test -f "$(CHECKOUT)"
 	@test -f "$(BUILD_PHASAR)"
 	@test -f "$(BUILD_SEADSA)"
 	@test -f "$(BUILD_SVF)"
@@ -72,13 +78,16 @@ doctor:
 	@test -f "$(RUN_TSUITE_PHASAR)"
 	@test -f "$(RUN_TSUITE_SDSA)"
 	@test -f "$(RUN_TSUITE_SVF)"
+	@test -f "$(RUN_PTRBENCH_PHASAR)"
+	@test -f "$(RUN_PTRBENCH_SDSA)"
+	@test -f "$(RUN_PTRBENCH_SVF)"
 	@echo "OK: all scripts present"
-
-checkout:
-	bash "$(CHECKOUT)"
 
 report:
 	bash "$(RES_REPORT)" Test-Suite
+
+report-ptrbench:
+	bash "$(RES_REPORT)" PointerBench
 
 # ---------------- DOCKER (Ubuntu 24 x86) ----------------
 
@@ -98,15 +107,15 @@ docker-run: docker-image
 .PHONY: tools-all tools-phasar tools-seadsa tools-svf
 
 tools-all: tools-phasar
-tools-phasar: checkout
+tools-phasar:
 	bash "$(BUILD_PHASAR)"
 
 tools-all: tools-seadsa
-tools-seadsa: checkout
+tools-seadsa:
 	bash "$(BUILD_SEADSA)"
 
 tools-all: tools-svf
-tools-svf: checkout
+tools-svf:
 	bash "$(BUILD_SVF)"
 
 # ---------------- TESTS ----------------
@@ -114,11 +123,11 @@ tools-svf: checkout
 .PHONY: test-all test-testsuit test-ptrbench
 
 test-all: test-testsuit
-test-testsuit: checkout
+test-testsuit:
 	bash "$(BUILD_TESTSUITE)"
 
 test-all: test-ptrbench
-test-ptrbench: checkout
+test-ptrbench:
 	bash "$(BUILD_PTRBENCH)"
 
 # ---------------- RUN TESTS ----------------
@@ -139,19 +148,11 @@ run-tsuite-svf:
 
 # ---------------- CLEAN ----------------
 
-.PHONY: clean-all clean-tools clean-tools-builds clean-tests clean-tests-builds clean-results
-
-clean-all: clean-tools
-clean-tools:
-	rm -rf "$(ROOT)/phasar" "$(ROOT)/sea-dsa" "$(ROOT)/SVF"
+.PHONY: clean-all clean-tools-builds clean-tests-builds clean-results
 
 clean-all: clean-tools-builds
 clean-tools-builds:
 	rm -rf "$(ROOT)/phasar/build" "$(ROOT)/sea-dsa/build" "$(ROOT)/SVF/build"
-
-clean-all: clean-tests
-clean-tests:
-	rm -rf "$(ROOT)/tests"
 
 clean-all: clean-tests-builds
 clean-tests-builds:
