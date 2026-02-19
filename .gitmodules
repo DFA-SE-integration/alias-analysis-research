@@ -2,3 +2,7 @@
 	path = tests/Test-Suite
 	url = git@github.com:DFA-SE-integration/Test-Suite.git
 	shallow = true
+[submodule "sea-dsa"]
+	path = sea-dsa
+	url = git@github.com:DFA-SE-integration/sea-dsa.git
+	shallow = true
