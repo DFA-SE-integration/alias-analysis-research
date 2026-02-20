@@ -1,5 +1,6 @@
 # CI: on push to main — build tools and tests, run analyzers, generate reports.
 # Artifacts: report-Test-Suite.txt, report-PointerBench.txt, results/
+# Caches: submodules (by .gitmodules + index), tools builds (by phasar/sea-dsa/SVF refs).
 
 name: CI
 
@@ -16,11 +17,78 @@ jobs:
         with:
           submodules: false
 
+      - name: Submodule cache key
+        id: submod-key
+        run: echo "key=submodules-${{ runner.os }}-${{ hashFiles('.gitmodules', '.git/index') }}" >> $GITHUB_OUTPUT
+
+      - name: Restore submodules cache
+        uses: actions/cache/restore@v4
+        id: cache-submodules
+        with:
+          path: |
+            .git/modules
+            phasar
+            sea-dsa
+            SVF
+            tests/Test-Suite
+            tests/PointerBench
+          key: ${{ steps.submod-key.outputs.key }}
+          fail-on-cache-miss: false
+
       - name: Checkout submodules (HTTPS for token auth)
+        if: steps.cache-submodules.outputs.cache-hit != 'true'
+        run: |
+          sed -i 's|git@github.com:|https://github.com/|g' .gitmodules
+          git submodule sync
+          if ! git submodule update --init --recursive; then
+            echo "::warning::Submodule update failed (referenced commit may be missing on remote). Checking out default branch for failed submodule(s)..."
+            for path in phasar sea-dsa SVF tests/Test-Suite tests/PointerBench; do
+              if [[ -d "$path/.git" ]]; then
+                (cd "$path" && git fetch origin 2>/dev/null; git checkout origin/HEAD 2>/dev/null || git checkout main 2>/dev/null || git checkout master 2>/dev/null || true)
+              else
+                git submodule update --init "$path" 2>/dev/null || true
+              fi
+            done
+          fi
+
+      - name: Sync submodules after cache restore
+        if: steps.cache-submodules.outputs.cache-hit == 'true'
         run: |
           sed -i 's|git@github.com:|https://github.com/|g' .gitmodules
           git submodule sync
           git submodule update --init --recursive
+
+      - name: Save submodules cache
+        if: steps.cache-submodules.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .git/modules
+            phasar
+            sea-dsa
+            SVF
+            tests/Test-Suite
+            tests/PointerBench
+          key: ${{ steps.submod-key.outputs.key }}
+
+      - name: Tools cache key
+        id: tools-key
+        run: |
+          P=$(git rev-parse HEAD:phasar 2>/dev/null || echo none)
+          S=$(git rev-parse HEAD:sea-dsa 2>/dev/null || echo none)
+          V=$(git rev-parse HEAD:SVF 2>/dev/null || echo none)
+          echo "key=tools-${{ runner.os }}-$P-$S-$V" >> $GITHUB_OUTPUT
+
+      - name: Restore tools build cache
+        uses: actions/cache/restore@v4
+        id: cache-tools
+        with:
+          path: |
+            phasar/build
+            sea-dsa/build
+            SVF/build
+          key: ${{ steps.tools-key.outputs.key }}
+          fail-on-cache-miss: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -50,6 +118,16 @@ jobs:
               make report > report-Test-Suite.txt
               make report-ptrbench > report-PointerBench.txt
             '
+
+      - name: Save tools build cache
+        if: steps.cache-tools.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            phasar/build
+            sea-dsa/build
+            SVF/build
+          key: ${{ steps.tools-key.outputs.key }}
 
       - name: Upload report and results
         uses: actions/upload-artifact@v4

@@ -8,7 +8,7 @@ DOCKER_IMAGE 		:= alias-analysis-ubuntu24
 DOCKER_BOOTSTRAP    := scripts/docker/00_bootstrap_ubuntu24.sh
 
 BUILD_PHASAR 		:= scripts/02_build_phasar.sh
-BUILD_SVF    		:= scripts/02_build_svf.sh
+BUILD_SVF    		:= scripts/02_build_SVF.sh
 BUILD_SEADSA 		:= scripts/02_build_seadsa.sh
 
 BUILD_TESTSUITE 	:= scripts/02_build_testsuite.sh
