@@ -76,10 +76,11 @@ while IFS= read -r -d '' RESULTS_DIR; do
     
     tool_name=$(basename "$RESULTS_DIR")
     
-    # Special handling for Phasar and Sea-DSA (two-level structure)
+    # Special handling for Phasar, Sea-DSA, and SVF (two-level structure)
     # Phasar: Phasar/cflanders/context, Phasar/cflsteens/context
-    # Sea-DSA: Sea-DSA/bu/context, Sea-DSA/butd-cs/context, Sea-DSA/cs/context, Sea-DSA/ci/context, Sea-DSA/flat/context
-    if [[ "$tool_name" == "Phasar" ]] || [[ "$tool_name" == "Sea-DSA" ]]; then
+    # Sea-DSA: Sea-DSA/bu/context, Sea-DSA/butd-cs/context, ...
+    # SVF: SVF/ander/context, SVF/fspta/context, SVF/vfspta/context, SVF/cxt/context
+    if [[ "$tool_name" == "Phasar" ]] || [[ "$tool_name" == "Sea-DSA" ]] || [[ "$tool_name" == "SVF" ]]; then
         # Process each analysis type (cflanders/cflsteens for Phasar, bu/butd-cs/cs/ci/flat for Sea-DSA)
         for analysis_dir in "$RESULTS_DIR"/*/; do
             [[ ! -d "$analysis_dir" ]] && continue
@@ -112,11 +113,13 @@ while IFS= read -r -d '' RESULTS_DIR; do
             done < <(find "$analysis_dir" -type f -name "*.log" -print0 2>/dev/null | sort -z)
             
             # Print summary for this analysis type
-            # For Sea-DSA, prefix with tool name
+            # For Sea-DSA and SVF, prefix with tool name
             if [[ "$tool_name" == "Sea-DSA" ]]; then
-                echo "=== Sea-DSA $analysis_name Test-Suite Results Summary ==="
+                echo "=== Sea-DSA $analysis_name $1 Results Summary ==="
+            elif [[ "$tool_name" == "SVF" ]]; then
+                echo "=== SVF $analysis_name $1 Results Summary ==="
             else
-                echo "=== $analysis_name Test-Suite Results Summary ==="
+                echo "=== $analysis_name $1 Results Summary ==="
             fi
             echo "Total files processed: $analysis_total"
             echo "SUCCESS: $analysis_success"
@@ -201,7 +204,7 @@ while IFS= read -r -d '' RESULTS_DIR; do
         done < <(find "$RESULTS_DIR" -type f -name "*.log" -print0 2>/dev/null | sort -z)
         
         # Print summary for this tool
-        echo "=== $tool_name Test-Suite Results Summary ==="
+        echo "=== $tool_name $1 Results Summary ==="
         echo "Total files processed: $total_count"
         echo "SUCCESS: $success_count"
         echo "FAILURE: $failure_count"
