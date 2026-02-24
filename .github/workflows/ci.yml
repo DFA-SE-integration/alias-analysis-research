@@ -8,6 +8,11 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build-and-report:
     runs-on: ubuntu-24.04
@@ -137,3 +142,91 @@ jobs:
             report-Test-Suite.txt
             report-PointerBench.txt
             results/
+  deploy-pages:
+    name: Deploy reports to GitHub Pages
+    needs: build-and-report
+    runs-on: ubuntu-24.04
+
+    # GitHub Pages environment (рекомендуемый паттерн)
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download reports artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: reports-and-results
+          path: ./artifact
+
+      - name: Prepare static site
+        run: |
+          mkdir -p site
+
+          # Копируем сырой артефакт внутрь сайта (чтобы были прямые ссылки)
+          cp -r artifact/results site/results || true
+          cp artifact/report-Test-Suite.txt site/report-Test-Suite.txt || true
+          cp artifact/report-PointerBench.txt site/report-PointerBench.txt || true
+
+          # Генерим простую HTML-страницу
+          python3 - <<'PY'
+          from html import escape
+          from pathlib import Path
+
+          site = Path("site")
+          ts = (site / "report-Test-Suite.txt").read_text(encoding="utf-8", errors="ignore") if (site / "report-Test-Suite.txt").exists() else "No report-Test-Suite.txt"
+          pb = (site / "report-PointerBench.txt").read_text(encoding="utf-8", errors="ignore") if (site / "report-PointerBench.txt").exists() else "No report-PointerBench.txt"
+
+          # Обрезаем превью, чтобы страница была маленькой
+          ts_preview = "\n".join(ts.splitlines()[:80])
+          pb_preview = "\n".join(pb.splitlines()[:80])
+
+          html = f"""<!doctype html>
+          <html lang="ru">
+          <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <title>Alias Analysis CI Reports</title>
+            <style>
+              body {{ font-family: system-ui, sans-serif; margin: 2rem; line-height: 1.4; }}
+              pre {{ background: #f6f8fa; padding: 1rem; border-radius: 8px; overflow-x: auto; }}
+              .card {{ border: 1px solid #ddd; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }}
+              a {{ text-decoration: none; }}
+            </style>
+          </head>
+          <body>
+            <h1>Alias Analysis CI Reports</h1>
+            <p>Автодеплой отчётов из GitHub Actions.</p>
+
+            <div class="card">
+              <h2>Test-Suite report</h2>
+              <p><a href="./report-Test-Suite.txt">Открыть полный .txt</a></p>
+              <pre>{escape(ts_preview)}</pre>
+            </div>
+
+            <div class="card">
+              <h2>PointerBench report</h2>
+              <p><a href="./report-PointerBench.txt">Открыть полный .txt</a></p>
+              <pre>{escape(pb_preview)}</pre>
+            </div>
+
+            <div class="card">
+              <h2>Raw results</h2>
+              <p><a href="./results/">Каталог results/</a> (если браузер/Pages покажет listing; если нет — можно добавить отдельный index позже)</p>
+            </div>
+          </body>
+          </html>"""
+          (site / "index.html").write_text(html, encoding="utf-8")
+          PY
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
