@@ -13,5 +13,6 @@ apt-get install -y --no-install-recommends \
   llvm-14 llvm-14-dev llvm-14-tools clang-14 libclang-14-dev clang-tools-14 \
   llvm-16 llvm-16-dev llvm-16-tools clang-16 libclang-16-dev clang-tools-16 \
   libexpat1-dev zlib1g-dev libzstd-dev libssl-dev \
-  libboost-dev
+  libboost-dev \
+  openjdk-17-jdk
 
