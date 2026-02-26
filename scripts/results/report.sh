@@ -1,11 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Script to count SUCCESS and FAILURE results from tool analysis
-# Scans all subdirectories in results/$1 and counts statistics for each
+# Script to count TP/TN/FP/FN from tool alias validation (MUSTALIAS/NOALIAS checks)
+# TP = MUSTALIAS confirmed, TN = NOALIAS confirmed, FP = NOALIAS failed, FN = MUSTALIAS failed
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BASE_RES_DIR="$ROOT/results/$1"
+
+# Count TP, TN, FP, FN in a log file (from "SUCCESS : MUSTALIAS", "FAILURE : NOALIAS", etc.)
+# Output: "TP TN FP FN" (space-separated)
+count_tp_tn_fp_fn() {
+    local log_file="$1"
+    local tp=0 tn=0 fp=0 fn=0
+    [[ ! -f "$log_file" ]] && echo "0 0 0 0" && return
+    tp=$(grep -E "SUCCESS.*MUSTALIAS|MUSTALIAS.*SUCCESS" "$log_file" 2>/dev/null | wc -l | tr -d ' ')
+    tn=$(grep -E "SUCCESS.*NOALIAS|NOALIAS.*SUCCESS" "$log_file" 2>/dev/null | wc -l | tr -d ' ')
+    fp=$(grep -E "FAILURE.*NOALIAS|NOALIAS.*FAILURE" "$log_file" 2>/dev/null | wc -l | tr -d ' ')
+    fn=$(grep -E "FAILURE.*MUSTALIAS|MUSTALIAS.*FAILURE" "$log_file" 2>/dev/null | wc -l | tr -d ' ')
+    echo "$tp $tn $fp $fn"
+}
+
+# Format TP, TN, FP, FN as percentages of total (TP+TN+FP+FN). Output: "TP=X%, TN=Y%, FP=Z%, FN=W%"
+format_tp_tn_fp_fn_pct() {
+    local tp="$1" tn="$2" fp="$3" fn="$4"
+    local total=$(( tp + tn + fp + fn ))
+    if [[ $total -eq 0 ]]; then
+        echo "TP=0%, TN=0%, FP=0%, FN=0%"
+        return
+    fi
+    awk "BEGIN {printf \"TP=%.0f%%, TN=%.0f%%, FP=%.0f%%, FN=%.0f%%\", 100*$tp/$total, 100*$tn/$total, 100*$fp/$total, 100*$fn/$total}"
+}
 
 # Function to extract execution time from log file
 # Returns time in seconds, or 0 if not found
@@ -86,25 +110,22 @@ while IFS= read -r -d '' RESULTS_DIR; do
             [[ ! -d "$analysis_dir" ]] && continue
             
             analysis_name=$(basename "$analysis_dir")
-            analysis_success=0
-            analysis_failure=0
+            analysis_tp=0
+            analysis_tn=0
+            analysis_fp=0
+            analysis_fn=0
             analysis_total=0
             analysis_total_time=0
             analysis_time_count=0
             
-            # Count all .log files for this analysis type and calculate total time
+            # Aggregate TP/TN/FP/FN and time over all .log files for this analysis type
             while IFS= read -r -d '' log_file; do
                 (( analysis_total++ )) || true
-                
-                if [[ ! -s "$log_file" ]]; then
-                    (( analysis_failure++ )) || true
-                elif grep -qE "(Aborted|Assertion.*failed|core dumped|FAILURE :)" "$log_file" 2>/dev/null; then
-                    (( analysis_failure++ )) || true
-                else
-                    (( analysis_success++ )) || true
-                fi
-                
-                # Extract time from log file for total time calculation
+                read -r tp tn fp fn <<< "$(count_tp_tn_fp_fn "$log_file")"
+                analysis_tp=$(( analysis_tp + tp ))
+                analysis_tn=$(( analysis_tn + tn ))
+                analysis_fp=$(( analysis_fp + fp ))
+                analysis_fn=$(( analysis_fn + fn ))
                 file_time=$(extract_time "$log_file")
                 if [[ -n "$file_time" ]] && [[ "$file_time" != "0" ]] && [[ "$file_time" != "0.0" ]]; then
                     analysis_total_time=$(awk "BEGIN {print $analysis_total_time + $file_time}")
@@ -112,8 +133,6 @@ while IFS= read -r -d '' RESULTS_DIR; do
                 fi
             done < <(find "$analysis_dir" -type f -name "*.log" -print0 2>/dev/null | sort -z)
             
-            # Print summary for this analysis type
-            # For Sea-DSA and SVF, prefix with tool name
             if [[ "$tool_name" == "Sea-DSA" ]]; then
                 echo "=== Sea-DSA $analysis_name $1 Results Summary ==="
             elif [[ "$tool_name" == "SVF" ]]; then
@@ -122,15 +141,7 @@ while IFS= read -r -d '' RESULTS_DIR; do
                 echo "=== $analysis_name $1 Results Summary ==="
             fi
             echo "Total files processed: $analysis_total"
-            echo "SUCCESS: $analysis_success"
-            echo "FAILURE: $analysis_failure"
-            
-            if [[ $analysis_total -gt 0 ]]; then
-                analysis_rate=$(( analysis_success * 100 / analysis_total ))
-                echo "Success rate: ${analysis_rate}%"
-            fi
-            
-            # Print total execution time
+            echo "$(format_tp_tn_fp_fn_pct "$analysis_tp" "$analysis_tn" "$analysis_fp" "$analysis_fn")"
             if [[ $analysis_time_count -gt 0 ]] && [[ "$analysis_total_time" != "0" ]]; then
                 total_time_formatted=$(awk "BEGIN {printf \"%.3f\", $analysis_total_time}")
                 echo "Total execution time: ${total_time_formatted}s"
@@ -138,32 +149,23 @@ while IFS= read -r -d '' RESULTS_DIR; do
                 echo "Total execution time: N/A"
             fi
             
-            # Print breakdown by category (context, flow, path+flow, etc.)
             echo ""
             echo "=== Breakdown by Category ==="
             for category_dir in "$analysis_dir"/*/; do
                 [[ ! -d "$category_dir" ]] && continue
-                
                 category=$(basename "$category_dir")
-                cat_success=0
-                cat_failure=0
-                cat_total=0
-                
+                cat_tp=0
+                cat_tn=0
+                cat_fp=0
+                cat_fn=0
                 while IFS= read -r -d '' log_file; do
-                    (( cat_total++ )) || true
-                    
-                    if [[ ! -s "$log_file" ]]; then
-                        (( cat_failure++ )) || true
-                    elif grep -qE "(Aborted|Assertion.*failed|core dumped|FAILURE :)" "$log_file" 2>/dev/null; then
-                        (( cat_failure++ )) || true
-                    else
-                        (( cat_success++ )) || true
-                    fi
+                    read -r tp tn fp fn <<< "$(count_tp_tn_fp_fn "$log_file")"
+                    cat_tp=$(( cat_tp + tp ))
+                    cat_tn=$(( cat_tn + tn ))
+                    cat_fp=$(( cat_fp + fp ))
+                    cat_fn=$(( cat_fn + fn ))
                 done < <(find "$category_dir" -type f -name "*.log" -print0 2>/dev/null)
-                
-                if [[ $cat_total -gt 0 ]]; then
-                    echo "$category: SUCCESS=$cat_success, FAILURE=$cat_failure, Total=$cat_total"
-                fi
+                echo "$category: $(format_tp_tn_fp_fn_pct "$cat_tp" "$cat_tn" "$cat_fp" "$cat_fn")"
             done
             
             echo ""
@@ -171,31 +173,22 @@ while IFS= read -r -d '' RESULTS_DIR; do
             echo ""
         done
     else
-        # Standard handling for other tools (SVF, etc.)
-        success_count=0
-        failure_count=0
+        # Standard handling for other tools (single-level dirs)
+        total_tp=0
+        total_tn=0
+        total_fp=0
+        total_fn=0
         total_count=0
         total_time=0
         time_count=0
         
-        # Process all .log files in this subdirectory
         while IFS= read -r -d '' log_file; do
             (( total_count++ )) || true
-            
-            # Check if file is empty
-            if [[ ! -s "$log_file" ]]; then
-                (( failure_count++ )) || true
-                continue
-            fi
-            
-            # Check for failure indicators
-            if grep -qE "(Aborted|Assertion.*failed|core dumped|FAILURE :)" "$log_file" 2>/dev/null; then
-                (( failure_count++ )) || true
-            else
-                (( success_count++ )) || true
-            fi
-            
-            # Extract time from log file for total time calculation
+            read -r tp tn fp fn <<< "$(count_tp_tn_fp_fn "$log_file")"
+            total_tp=$(( total_tp + tp ))
+            total_tn=$(( total_tn + tn ))
+            total_fp=$(( total_fp + fp ))
+            total_fn=$(( total_fn + fn ))
             file_time=$(extract_time "$log_file")
             if [[ -n "$file_time" ]] && [[ "$file_time" != "0" ]] && [[ "$file_time" != "0.0" ]]; then
                 total_time=$(awk "BEGIN {print $total_time + $file_time}")
@@ -203,18 +196,9 @@ while IFS= read -r -d '' RESULTS_DIR; do
             fi
         done < <(find "$RESULTS_DIR" -type f -name "*.log" -print0 2>/dev/null | sort -z)
         
-        # Print summary for this tool
         echo "=== $tool_name $1 Results Summary ==="
         echo "Total files processed: $total_count"
-        echo "SUCCESS: $success_count"
-        echo "FAILURE: $failure_count"
-        
-        if [[ $total_count -gt 0 ]]; then
-            success_rate=$(( success_count * 100 / total_count ))
-            echo "Success rate: ${success_rate}%"
-        fi
-        
-        # Print total execution time
+        echo "$(format_tp_tn_fp_fn_pct "$total_tp" "$total_tn" "$total_fp" "$total_fn")"
         if [[ $time_count -gt 0 ]] && [[ "$total_time" != "0" ]]; then
             total_time_formatted=$(awk "BEGIN {printf \"%.3f\", $total_time}")
             echo "Total execution time: ${total_time_formatted}s"
@@ -222,32 +206,23 @@ while IFS= read -r -d '' RESULTS_DIR; do
             echo "Total execution time: N/A"
         fi
         
-        # Print breakdown by category
         echo ""
         echo "=== Breakdown by Category ==="
         for category_dir in "$RESULTS_DIR"/*/; do
             [[ ! -d "$category_dir" ]] && continue
-            
             category=$(basename "$category_dir")
-            cat_success=0
-            cat_failure=0
-            cat_total=0
-            
+            cat_tp=0
+            cat_tn=0
+            cat_fp=0
+            cat_fn=0
             while IFS= read -r -d '' log_file; do
-                (( cat_total++ )) || true
-                
-                if [[ ! -s "$log_file" ]]; then
-                    (( cat_failure++ )) || true
-                elif grep -qE "(Aborted|Assertion.*failed|core dumped|FAILURE :)" "$log_file" 2>/dev/null; then
-                    (( cat_failure++ )) || true
-                else
-                    (( cat_success++ )) || true
-                fi
+                read -r tp tn fp fn <<< "$(count_tp_tn_fp_fn "$log_file")"
+                cat_tp=$(( cat_tp + tp ))
+                cat_tn=$(( cat_tn + tn ))
+                cat_fp=$(( cat_fp + fp ))
+                cat_fn=$(( cat_fn + fn ))
             done < <(find "$category_dir" -type f -name "*.log" -print0 2>/dev/null)
-            
-            if [[ $cat_total -gt 0 ]]; then
-                echo "$category: SUCCESS=$cat_success, FAILURE=$cat_failure, Total=$cat_total"
-            fi
+            echo "$category: $(format_tp_tn_fp_fn_pct "$cat_tp" "$cat_tn" "$cat_fp" "$cat_fn")"
         done
         
         echo ""

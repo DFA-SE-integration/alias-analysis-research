@@ -80,34 +80,19 @@ export RESULTS_TSUITE_SVF_VFSPTA="$RESULTS_TSUITE/SVF/vfspta"
 export RESULTS_TSUITE_SVF_CXT="$RESULTS_TSUITE/SVF/cxt"
 
 export TSUIT_BC_SUP_DIRS="
-  context
-  context+flow
-  context+flow+heap
-  context+path
-  context+path+flow
-  context+path+flow+heap
-  context_insens
-  context_sens
-  field+context
-  field+context+flow
-  field+context+flow+heap
-  field+context+path
-  field+context+path+flow
-  field+context+path+flow+heap
-  field+flow
-  field+flow+heap
-  field+flow+path
-  field+heap
-  field+path+flow
-  field+path+flow+heap
-  field_sens
-  flow
-  flow+heap
-  flow+path
-  flow_sens
-  funcptr_sens
-  index_sens
-  path+flow
-  path_insens
-  path_sens
+flow
+flow+context
+flow+field
+flow+field+context
+flow+field+context+heap
+flow+field+heap
+flow+heap
+flow+index
+flow+path
+flow+path+context
+flow+path+context+heap
+flow+path+field
+flow+path+field+context
+flow+path+field+context+heap
+flow+path+field+heap
 "
