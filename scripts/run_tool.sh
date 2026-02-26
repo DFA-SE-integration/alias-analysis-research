@@ -24,7 +24,7 @@ if ! declare -f run_one_file >/dev/null 2>&1; then
   exit 1
 fi
 
-for dir in $TSUIT_BC_SUP_DIRS; do
+for dir in $BC_SUB_DIRS; do
     target_dir="$BC_DIR/$dir"
     results_dir="$RES_DIR/$dir"
 

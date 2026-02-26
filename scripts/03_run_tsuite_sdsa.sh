@@ -4,6 +4,7 @@ set -euo pipefail
 source "scripts/globals.sh"
 
 export BC_DIR="$TSUIT_BC_14"
+export BC_SUB_DIRS="$TSUIT_BC_SUP_DIRS"
 
 # cs
 export RES_DIR="$RESULTS_TSUITE_SDSA_CS"

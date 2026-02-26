@@ -84,10 +84,7 @@ doctor:
 	@echo "OK: all scripts present"
 
 report:
-	bash "$(RES_REPORT)" Test-Suite
-
-report-ptrbench:
-	bash "$(RES_REPORT)" PointerBench
+	bash "$(RES_REPORT)"
 
 # ---------------- DOCKER (Ubuntu 24 x86) ----------------
 
