@@ -24,7 +24,9 @@ if ! declare -f run_one_file >/dev/null 2>&1; then
   exit 1
 fi
 
+BC_SUB_DIRS=$(ls ${BC_DIR})
 for dir in $BC_SUB_DIRS; do
+    echo $dir
     target_dir="$BC_DIR/$dir"
     results_dir="$RES_DIR/$dir"
 

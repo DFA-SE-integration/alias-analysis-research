@@ -23,11 +23,11 @@ RUN_PTRBENCH_SDSA	:= scripts/03_run_ptrbench_sdsa.sh
 RUN_PTRBENCH_SVF   	:= scripts/03_run_ptrbench_svf.sh
 
 ENVSH           	:= scripts/env.sh
-RES_REPORT			:= scripts/results/report.sh
+REPORT			:= scripts/report.sh
 
 # ---------------- GENERAL TARGETS ----------------
 
-.PHONY: help doctor
+.PHONY: help doctor report
 
 help:
 	@echo "Targets:"
@@ -59,8 +59,7 @@ help:
 	@echo "  make run-ptrbench-svf		- run svf on PointerBench .bc"
 	@echo ""
 	@echo "Reports:"
-	@echo "  make report			- report for Test-Suite results"
-	@echo "  make report-ptrbench		- report for PointerBench results"
+	@echo "  make report			- report for tests results"
 	@echo ""
 	@echo "Clean:"
 	@echo "  make clean-all		- clean all"
@@ -84,7 +83,7 @@ doctor:
 	@echo "OK: all scripts present"
 
 report:
-	bash "$(RES_REPORT)"
+	bash "$(REPORT)"
 
 # ---------------- DOCKER (Ubuntu 24 x86) ----------------
 
@@ -143,7 +142,7 @@ run-tsuite: run-tsuite-svf
 run-tsuite-svf:
 	bash "$(RUN_TSUITE_SVF)"
 
-.PHONY: run-ptrbench run-ptrbench-phasar run-ptrbench-sdsa run-ptrbench-svf report-ptrbench
+.PHONY: run-ptrbench run-ptrbench-phasar run-ptrbench-sdsa run-ptrbench-svf
 
 run-ptrbench: run-ptrbench-phasar
 run-ptrbench-phasar:

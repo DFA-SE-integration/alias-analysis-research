@@ -1,5 +1,5 @@
 # CI: on push to main — build tools and tests, run analyzers, generate reports.
-# Artifacts: report-Test-Suite.txt, report-PointerBench.txt, results/
+# Artifacts: report.txt, results/
 # Caches: submodules (by .gitmodules + index), tools builds (by phasar/sea-dsa/SVF refs).
 
 name: CI
@@ -120,8 +120,7 @@ jobs:
               make test-all
               make run-tsuite
               make run-ptrbench
-              make report > report-Test-Suite.txt
-              make report-ptrbench > report-PointerBench.txt
+              make report > report.txt
             '
 
       - name: Save tools build cache
@@ -139,8 +138,7 @@ jobs:
         with:
           name: reports-and-results
           path: |
-            report-Test-Suite.txt
-            report-PointerBench.txt
+            report.txt
             results/
   deploy-pages:
     name: Deploy reports to GitHub Pages
@@ -165,8 +163,7 @@ jobs:
 
           # Копируем сырой артефакт внутрь сайта (чтобы были прямые ссылки)
           cp -r artifact/results site/results || true
-          cp artifact/report-Test-Suite.txt site/report-Test-Suite.txt || true
-          cp artifact/report-PointerBench.txt site/report-PointerBench.txt || true
+          cp artifact/report.txt site/report.txt || true
 
           # Генерим простую HTML-страницу
           python3 - <<'PY'
@@ -174,12 +171,10 @@ jobs:
           from pathlib import Path
 
           site = Path("site")
-          ts = (site / "report-Test-Suite.txt").read_text(encoding="utf-8", errors="ignore") if (site / "report-Test-Suite.txt").exists() else "No report-Test-Suite.txt"
-          pb = (site / "report-PointerBench.txt").read_text(encoding="utf-8", errors="ignore") if (site / "report-PointerBench.txt").exists() else "No report-PointerBench.txt"
+          rep = (site / "report.txt").read_text(encoding="utf-8", errors="ignore") if (site / "report.txt").exists() else "No report.txt"
 
           # Обрезаем превью, чтобы страница была маленькой
-          ts_preview = "\n".join(ts.splitlines()[:80])
-          pb_preview = "\n".join(pb.splitlines()[:80])
+          rep_preview = "\n".join(rep.splitlines()[:80])
 
           html = f"""<!doctype html>
           <html lang="ru">
@@ -199,15 +194,9 @@ jobs:
             <p>Автодеплой отчётов из GitHub Actions.</p>
 
             <div class="card">
-              <h2>Test-Suite report</h2>
-              <p><a href="./report-Test-Suite.txt">Открыть полный .txt</a></p>
-              <pre>{escape(ts_preview)}</pre>
-            </div>
-
-            <div class="card">
-              <h2>PointerBench report</h2>
-              <p><a href="./report-PointerBench.txt">Открыть полный .txt</a></p>
-              <pre>{escape(pb_preview)}</pre>
+              <h2>Report</h2>
+              <p><a href="./report.txt">Открыть полный .txt</a></p>
+              <pre>{escape(rep_preview)}</pre>
             </div>
 
             <div class="card">

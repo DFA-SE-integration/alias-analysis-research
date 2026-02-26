@@ -4,10 +4,9 @@ set -euo pipefail
 source "scripts/globals.sh"
 
 export BC_DIR="$PTRBENCH_BC_14"
-export BC_SUB_DIRS="$PTRBENCH_BC_SUP_DIRS"
 
 # cs
-export RES_DIR="$RESULTS_PTRBENCH_SDSA_CS"
+export RES_DIR="$RESULTS_PTRBENCH/Sea-DSA/cs"
 run_one_file() {
   local bc_file="$1" log_file="$2" test_dir="$3"
   "$SDSA_CLI" --sea-dsa-aa-eval --sea-dsa-stats --sea-dsa=cs "$bc_file" &> "$log_file"
@@ -15,7 +14,7 @@ run_one_file() {
 source "scripts/run_tool.sh"
 
 # butd-cs
-export RES_DIR="$RESULTS_PTRBENCH_SDSA_BUTD_CS"
+export RES_DIR="$RESULTS_PTRBENCH/Sea-DSA/butd-cs"
 run_one_file() {
   local bc_file="$1" log_file="$2" test_dir="$3"
   "$SDSA_CLI" --sea-dsa-aa-eval --sea-dsa-stats --sea-dsa=butd-cs "$bc_file" &> "$log_file"
@@ -23,7 +22,7 @@ run_one_file() {
 source "scripts/run_tool.sh"
 
 # bu
-export RES_DIR="$RESULTS_PTRBENCH_SDSA_BU"
+export RES_DIR="$RESULTS_PTRBENCH/Sea-DSA/bu"
 run_one_file() {
   local bc_file="$1" log_file="$2" test_dir="$3"
   "$SDSA_CLI" --sea-dsa-aa-eval --sea-dsa-stats --sea-dsa=bu "$bc_file" &> "$log_file"
@@ -31,7 +30,7 @@ run_one_file() {
 source "scripts/run_tool.sh"
 
 # ci
-export RES_DIR="$RESULTS_PTRBENCH_SDSA_CI"
+export RES_DIR="$RESULTS_PTRBENCH/Sea-DSA/ci"
 run_one_file() {
   local bc_file="$1" log_file="$2" test_dir="$3"
   "$SDSA_CLI" --sea-dsa-aa-eval --sea-dsa-stats --sea-dsa=ci "$bc_file" &> "$log_file"
@@ -39,7 +38,7 @@ run_one_file() {
 source "scripts/run_tool.sh"
 
 # flat
-export RES_DIR="$RESULTS_PTRBENCH_SDSA_FLAT"
+export RES_DIR="$RESULTS_PTRBENCH/Sea-DSA/flat"
 run_one_file() {
   local bc_file="$1" log_file="$2" test_dir="$3"
   "$SDSA_CLI" --sea-dsa-aa-eval --sea-dsa-stats --sea-dsa=flat "$bc_file" &> "$log_file"

@@ -4,30 +4,29 @@ set -euo pipefail
 source "scripts/globals.sh"
 
 export BC_DIR="$TSUIT_BC_14"
-export BC_SUB_DIRS="$TSUIT_BC_SUP_DIRS"
 
-export RES_DIR="$RESULTS_TSUITE_SVF_ANDER"
+export RES_DIR="$RESULTS_TSUITE/SVF/ander"
 run_one_file() {
   local bc_file="$1" log_file="$2" test_dir="$3"
   "$WPA_CLI" -ander -print-aliases -stat=true "$bc_file" &> "$log_file"
 }
 source "scripts/run_tool.sh"
 
-export RES_DIR="$RESULTS_TSUITE_SVF_FSPTA"
+export RES_DIR="$RESULTS_TSUITE/SVF/fspta"
 run_one_file() {
   local bc_file="$1" log_file="$2" test_dir="$3"
   "$WPA_CLI" -fspta -print-aliases -stat=true "$bc_file" &> "$log_file"
 }
 source "scripts/run_tool.sh"
 
-export RES_DIR="$RESULTS_TSUITE_SVF_VFSPTA"
+export RES_DIR="$RESULTS_TSUITE/SVF/vfspta"
 run_one_file() {
   local bc_file="$1" log_file="$2" test_dir="$3"
   "$WPA_CLI" -vfspta -print-aliases -stat=true "$bc_file" &> "$log_file"
 }
 source "scripts/run_tool.sh"
 
-export RES_DIR="$RESULTS_TSUITE_SVF_CXT"
+export RES_DIR="$RESULTS_TSUITE/SVF/cxt"
 run_one_file() {
   local bc_file="$1" log_file="$2" test_dir="$3"
   "$DVF_CLI" -cxt -print-aliases -stat=true "$bc_file" &> "$log_file"
