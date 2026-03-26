@@ -2,3 +2,4 @@ results/
 **/build/
 **/.libs/
 results
+tests/scalability/bzip2-*/

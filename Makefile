@@ -12,10 +12,13 @@ BUILD_SVF    		:= scripts/02_build_SVF.sh
 BUILD_SEADSA 		:= scripts/02_build_seadsa.sh
 
 BUILD_TESTSUITE 	:= scripts/02_build_testsuite.sh
+BUILD_SCALABILITY	:= scripts/02_build_scalability.sh
 
 RUN_TSUITE_PHASAR	:= scripts/03_run_tsuite_phasar.sh
 RUN_TSUITE_SDSA		:= scripts/03_run_tsuite_sdsa.sh
 RUN_TSUITE_SVF     	:= scripts/03_run_tsuite_svf.sh
+
+RUN_SCALABILITY		:= scripts/03_run_scalability.sh
 
 ENVSH           	:= scripts/env.sh
 REPORT			:= scripts/report.sh
@@ -43,11 +46,13 @@ help:
 	@echo "Tests:"
 	@echo "  make test-all			- all tests"
 	@echo "  make test-testsuit		- build Test-Suite"
+	@echo "  make test-scalability		- download bzip2 and build scalability .bc"
 	@echo ""
 	@echo "Run tests:"
 	@echo "  make run-tsuite-phasar	- run phasar tool on test-suite binaries"
 	@echo "  make run-tsuite-sdsa		- run seadsa tool on test-suite binaries"
 	@echo "  make run-tsuite-svf		- run svf tool on test-suite binaries"
+	@echo "  make run-scalability		- run all tools on bzip2 (scalability test)"
 	@echo ""
 	@echo "Reports:"
 	@echo "  make report			- report for tests results"
@@ -64,9 +69,11 @@ doctor:
 	@test -f "$(BUILD_SEADSA)"
 	@test -f "$(BUILD_SVF)"
 	@test -f "$(BUILD_TESTSUITE)"
+	@test -f "$(BUILD_SCALABILITY)"
 	@test -f "$(RUN_TSUITE_PHASAR)"
 	@test -f "$(RUN_TSUITE_SDSA)"
 	@test -f "$(RUN_TSUITE_SVF)"
+	@test -f "$(RUN_SCALABILITY)"
 	@echo "OK: all scripts present"
 
 report:
@@ -103,11 +110,15 @@ tools-svf:
 
 # ---------------- TESTS ----------------
 
-.PHONY: test-all test-testsuit
+.PHONY: test-all test-testsuit test-scalability
 
 test-all: test-testsuit
 test-testsuit:
 	bash "$(BUILD_TESTSUITE)"
+
+test-all: test-scalability
+test-scalability:
+	bash "$(BUILD_SCALABILITY)"
 
 # ---------------- RUN TESTS ----------------
 
@@ -125,6 +136,10 @@ run-tsuite: run-tsuite-svf
 run-tsuite-svf:
 	bash "$(RUN_TSUITE_SVF)"
 
+.PHONY: run-scalability
+
+run-scalability:
+	bash "$(RUN_SCALABILITY)"
 
 # ---------------- CLEAN ----------------
 
@@ -136,7 +151,7 @@ clean-tools-builds:
 
 clean-all: clean-tests-builds
 clean-tests-builds:
-	rm -rf "$(ROOT)/tests/Test-Suite/build"
+	rm -rf "$(ROOT)/tests/Test-Suite/build" "$(ROOT)/tests/scalability/build"
 
 clean-all: clean-results
 clean-results:

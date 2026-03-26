@@ -4,6 +4,7 @@ set -euo pipefail
 source "scripts/globals.sh"
 
 python3 "$ROOT/scripts/report.py" $RESULTS_TSUITE
+python3 "$ROOT/scripts/scalability_report.py" "$RESULTS_SCALABILITY"
 
 # Script to count TP/TN/FP/FN from tool alias validation (MUSTALIAS/NOALIAS checks)
 # TP = MUSTALIAS confirmed, TN = NOALIAS confirmed, FP = NOALIAS failed, FN = MUSTALIAS failed

@@ -117,6 +117,7 @@ jobs:
               make tools-all
               make test-all
               make run-tsuite
+              make run-scalability
               make report > report.txt
             '
 
@@ -188,7 +189,6 @@ jobs:
           </head>
           <body>
             <h1>Alias Analysis CI Reports</h1>
-            <p>Автодеплой отчётов из GitHub Actions.</p>
 
             <div class="card">
               <h2>Report</h2>
@@ -198,7 +198,7 @@ jobs:
 
             <div class="card">
               <h2>Raw results</h2>
-              <p><a href="./results/">Каталог results/</a> (если браузер/Pages покажет listing; если нет — можно добавить отдельный index позже)</p>
+              <p><a href="./results/">Каталог results/</a></p>
             </div>
           </body>
           </html>"""

@@ -29,8 +29,15 @@ export TSUITE_SRC="$TEST_ROOT/Test-Suite/src"
 export TSUIT_BC_14="$ROOT/tests/Test-Suite/build/bc/llvm-14"
 export TSUIT_BC_16="$ROOT/tests/Test-Suite/build/bc/llvm-16"
 
+# Scalability
+export SCALABILITY_SRC="$ROOT/tests/scalability"
+export SCALABILITY_BC_14="$ROOT/tests/scalability/build/llvm-14/bzip2.bc"
+export SCALABILITY_BC_16="$ROOT/tests/scalability/build/llvm-16/bzip2.bc"
+export SCALABILITY_TIMEOUT=120
+
 # Results
 export RESULTS_ROOT="$ROOT/results"
 
 # Tests
 export RESULTS_TSUITE="$RESULTS_ROOT/Test-Suite"
+export RESULTS_SCALABILITY="$RESULTS_ROOT/scalability"
