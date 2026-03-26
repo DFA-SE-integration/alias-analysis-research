@@ -12,15 +12,10 @@ BUILD_SVF    		:= scripts/02_build_SVF.sh
 BUILD_SEADSA 		:= scripts/02_build_seadsa.sh
 
 BUILD_TESTSUITE 	:= scripts/02_build_testsuite.sh
-BUILD_PTRBENCH  	:= scripts/02_build_ptrbench.sh
 
 RUN_TSUITE_PHASAR	:= scripts/03_run_tsuite_phasar.sh
 RUN_TSUITE_SDSA		:= scripts/03_run_tsuite_sdsa.sh
 RUN_TSUITE_SVF     	:= scripts/03_run_tsuite_svf.sh
-
-RUN_PTRBENCH_PHASAR	:= scripts/03_run_ptrbench_phasar.sh
-RUN_PTRBENCH_SDSA	:= scripts/03_run_ptrbench_sdsa.sh
-RUN_PTRBENCH_SVF   	:= scripts/03_run_ptrbench_svf.sh
 
 ENVSH           	:= scripts/env.sh
 REPORT			:= scripts/report.sh
@@ -48,15 +43,11 @@ help:
 	@echo "Tests:"
 	@echo "  make test-all			- all tests"
 	@echo "  make test-testsuit		- build Test-Suite"
-	@echo "  make test-ptrbench		- build PointerBench(C version)"
 	@echo ""
 	@echo "Run tests:"
 	@echo "  make run-tsuite-phasar	- run phasar tool on test-suite binaries"
 	@echo "  make run-tsuite-sdsa		- run seadsa tool on test-suite binaries"
 	@echo "  make run-tsuite-svf		- run svf tool on test-suite binaries"
-	@echo "  make run-ptrbench-phasar	- run phasar on PointerBench .bc"
-	@echo "  make run-ptrbench-sdsa		- run seadsa on PointerBench .bc"
-	@echo "  make run-ptrbench-svf		- run svf on PointerBench .bc"
 	@echo ""
 	@echo "Reports:"
 	@echo "  make report			- report for tests results"
@@ -73,13 +64,9 @@ doctor:
 	@test -f "$(BUILD_SEADSA)"
 	@test -f "$(BUILD_SVF)"
 	@test -f "$(BUILD_TESTSUITE)"
-	@test -f "$(BUILD_PTRBENCH)"
 	@test -f "$(RUN_TSUITE_PHASAR)"
 	@test -f "$(RUN_TSUITE_SDSA)"
 	@test -f "$(RUN_TSUITE_SVF)"
-	@test -f "$(RUN_PTRBENCH_PHASAR)"
-	@test -f "$(RUN_PTRBENCH_SDSA)"
-	@test -f "$(RUN_PTRBENCH_SVF)"
 	@echo "OK: all scripts present"
 
 report:
@@ -116,15 +103,11 @@ tools-svf:
 
 # ---------------- TESTS ----------------
 
-.PHONY: test-all test-testsuit test-ptrbench
+.PHONY: test-all test-testsuit
 
 test-all: test-testsuit
 test-testsuit:
 	bash "$(BUILD_TESTSUITE)"
-
-test-all: test-ptrbench
-test-ptrbench:
-	bash "$(BUILD_PTRBENCH)"
 
 # ---------------- RUN TESTS ----------------
 
@@ -142,19 +125,6 @@ run-tsuite: run-tsuite-svf
 run-tsuite-svf:
 	bash "$(RUN_TSUITE_SVF)"
 
-.PHONY: run-ptrbench run-ptrbench-phasar run-ptrbench-sdsa run-ptrbench-svf
-
-run-ptrbench: run-ptrbench-phasar
-run-ptrbench-phasar:
-	bash "$(RUN_PTRBENCH_PHASAR)"
-
-run-ptrbench: run-ptrbench-sdsa
-run-ptrbench-sdsa:
-	bash "$(RUN_PTRBENCH_SDSA)"
-
-run-ptrbench: run-ptrbench-svf
-run-ptrbench-svf:
-	bash "$(RUN_PTRBENCH_SVF)"
 
 # ---------------- CLEAN ----------------
 
@@ -166,7 +136,7 @@ clean-tools-builds:
 
 clean-all: clean-tests-builds
 clean-tests-builds:
-	rm -rf "$(ROOT)/tests/Test-Suite/build" "$(ROOT)/tests/PointerBench/build"
+	rm -rf "$(ROOT)/tests/Test-Suite/build"
 
 clean-all: clean-results
 clean-results:

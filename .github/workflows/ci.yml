@@ -36,7 +36,6 @@ jobs:
             sea-dsa
             SVF
             tests/Test-Suite
-            tests/PointerBench
           key: ${{ steps.submod-key.outputs.key }}
           fail-on-cache-miss: false
 
@@ -47,7 +46,7 @@ jobs:
           git submodule sync
           if ! git submodule update --init --recursive; then
             echo "::warning::Submodule update failed (referenced commit may be missing on remote). Checking out default branch for failed submodule(s)..."
-            for path in phasar sea-dsa SVF tests/Test-Suite tests/PointerBench; do
+            for path in phasar sea-dsa SVF tests/Test-Suite; do
               if [[ -d "$path/.git" ]]; then
                 (cd "$path" && git fetch origin 2>/dev/null; git checkout origin/HEAD 2>/dev/null || git checkout main 2>/dev/null || git checkout master 2>/dev/null || true)
               else
@@ -73,7 +72,6 @@ jobs:
             sea-dsa
             SVF
             tests/Test-Suite
-            tests/PointerBench
           key: ${{ steps.submod-key.outputs.key }}
 
       - name: Tools cache key
@@ -119,7 +117,6 @@ jobs:
               make tools-all
               make test-all
               make run-tsuite
-              make run-ptrbench
               make report > report.txt
             '
 

@@ -23,12 +23,6 @@ export PATH=$Z3_BIN:$PATH
 # Tests
 export TEST_ROOT="$ROOT/tests"
 
-# PointerBench
-export PTRBENCH_ROOT="$TEST_ROOT/PointerBench"
-export PTRBENCH_SRC="$PTRBENCH_ROOT/src"
-export PTRBENCH_BC_14="$ROOT/tests/PointerBench/build/bc/llvm-14"
-export PTRBENCH_BC_16="$ROOT/tests/PointerBench/build/bc/llvm-16"
-
 # Test-Suite
 export TSUITE_ROOT="$TEST_ROOT/Test-Suite"
 export TSUITE_SRC="$TEST_ROOT/Test-Suite/src"
@@ -40,4 +34,3 @@ export RESULTS_ROOT="$ROOT/results"
 
 # Tests
 export RESULTS_TSUITE="$RESULTS_ROOT/Test-Suite"
-export RESULTS_PTRBENCH="$RESULTS_ROOT/PointerBench"

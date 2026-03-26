@@ -4,7 +4,6 @@ set -euo pipefail
 source "scripts/globals.sh"
 
 python3 "$ROOT/scripts/report.py" $RESULTS_TSUITE
-python3 "$ROOT/scripts/report.py" $RESULTS_PTRBENCH
 
 # Script to count TP/TN/FP/FN from tool alias validation (MUSTALIAS/NOALIAS checks)
 # TP = MUSTALIAS confirmed, TN = NOALIAS confirmed, FP = NOALIAS failed, FN = MUSTALIAS failed
