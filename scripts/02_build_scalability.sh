@@ -48,3 +48,19 @@ for s in "${SRCS[@]}"; do
 done
 llvm-link-16 "${OBJ16[@]}" -o "$SCALABILITY_BC_16"
 echo "OK: $SCALABILITY_BC_16"
+
+# ---------- llvm-20 ----------
+export LLVM_BIN_OVERRIDE="$CLANGIR_LLVM_BUILD_LINK/bin"
+export CLANG_BIN="$CLANGIR_LLVM_BUILD_LINK/bin/clang"
+
+OUT_20="$(dirname "$SCALABILITY_BC_20")"
+mkdir -p "$OUT_20"
+
+echo "Compiling with clang-20..."
+OBJ20=()
+for s in "${SRCS[@]}"; do
+    $CLANG_BIN -emit-llvm -O0 -g -c "$SRC_DIR/${s}.c" -o "$OUT_20/${s}.bc"
+    OBJ20+=("$OUT_20/${s}.bc")
+done
+$LLVM_BIN_OVERRIDE/llvm-link "${OBJ20[@]}" -o "$SCALABILITY_BC_20"
+echo "OK: $SCALABILITY_BC_20"

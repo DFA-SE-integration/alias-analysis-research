@@ -50,12 +50,12 @@ run_mode SVF vfspta  "$SCALABILITY_BC_14"  "$WPA_CLI" -vfspta -stat=true "$SCALA
 run_mode SVF cxt     "$SCALABILITY_BC_14"  "$DVF_CLI" -cxt    -stat=true "$SCALABILITY_BC_14"
 
 # ---------- Sea-DSA (llvm-14) ----------
-echo "=== Sea-DSA ==="
-run_mode Sea-DSA bu      "$SCALABILITY_BC_14"  "$SDSA_CLI" --sea-dsa-stats --sea-dsa=bu      "$SCALABILITY_BC_14"
-run_mode Sea-DSA ci      "$SCALABILITY_BC_14"  "$SDSA_CLI" --sea-dsa-stats --sea-dsa=ci      "$SCALABILITY_BC_14"
-run_mode Sea-DSA flat    "$SCALABILITY_BC_14"  "$SDSA_CLI" --sea-dsa-stats --sea-dsa=flat    "$SCALABILITY_BC_14"
-run_mode Sea-DSA cs      "$SCALABILITY_BC_14"  "$SDSA_CLI" --sea-dsa-stats --sea-dsa=cs      "$SCALABILITY_BC_14"
-run_mode Sea-DSA butd-cs "$SCALABILITY_BC_14"  "$SDSA_CLI" --sea-dsa-stats --sea-dsa=butd-cs "$SCALABILITY_BC_14"
+echo "=== Sea-DSA-llvm14 ==="
+run_mode Sea-DSA-llvm14 bu      "$SCALABILITY_BC_14"  "$SDSA_LLVM14_CLI" --sea-dsa-stats --sea-dsa=bu      "$SCALABILITY_BC_14"
+run_mode Sea-DSA-llvm14 ci      "$SCALABILITY_BC_14"  "$SDSA_LLVM14_CLI" --sea-dsa-stats --sea-dsa=ci      "$SCALABILITY_BC_14"
+run_mode Sea-DSA-llvm14 flat    "$SCALABILITY_BC_14"  "$SDSA_LLVM14_CLI" --sea-dsa-stats --sea-dsa=flat    "$SCALABILITY_BC_14"
+run_mode Sea-DSA-llvm14 cs      "$SCALABILITY_BC_14"  "$SDSA_LLVM14_CLI" --sea-dsa-stats --sea-dsa=cs      "$SCALABILITY_BC_14"
+run_mode Sea-DSA-llvm14 butd-cs "$SCALABILITY_BC_14"  "$SDSA_LLVM14_CLI" --sea-dsa-stats --sea-dsa=butd-cs "$SCALABILITY_BC_14"
 
 # ---------- Phasar (llvm-16) ----------
 echo "=== Phasar ==="
@@ -67,3 +67,11 @@ run_mode Phasar cflsteens "$SCALABILITY_BC_16"  \
     --alias-analysis=cflsteens --emit-pta-as-json --emit-stats
 
 echo "OK: scalability results under $RESULTS_SCALABILITY"
+
+# ---------- Sea-DSA (llvm-20) ----------
+echo "=== Sea-DSA-llvm20 ==="
+run_mode Sea-DSA-llvm20 bu      "$SCALABILITY_BC_20"  "$SDSA_LLVM20_CLI" --sea-dsa-stats --sea-dsa=bu      "$SCALABILITY_BC_14"
+run_mode Sea-DSA-llvm20 ci      "$SCALABILITY_BC_20"  "$SDSA_LLVM20_CLI" --sea-dsa-stats --sea-dsa=ci      "$SCALABILITY_BC_14"
+run_mode Sea-DSA-llvm20 flat    "$SCALABILITY_BC_20"  "$SDSA_LLVM20_CLI" --sea-dsa-stats --sea-dsa=flat    "$SCALABILITY_BC_14"
+run_mode Sea-DSA-llvm20 cs      "$SCALABILITY_BC_20"  "$SDSA_LLVM20_CLI" --sea-dsa-stats --sea-dsa=cs      "$SCALABILITY_BC_14"
+run_mode Sea-DSA-llvm20 butd-cs "$SCALABILITY_BC_20"  "$SDSA_LLVM20_CLI" --sea-dsa-stats --sea-dsa=butd-cs "$SCALABILITY_BC_20"

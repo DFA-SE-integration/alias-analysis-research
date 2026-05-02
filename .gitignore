@@ -3,3 +3,4 @@ results/
 **/.libs/
 results
 tests/scalability/bzip2-*/
+clangir/

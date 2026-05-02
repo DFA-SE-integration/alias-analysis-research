@@ -26,11 +26,13 @@ if [[ -x "$CLI" ]]; then
 fi
 
 # Задание иерархии сборки
-BUILD="$SRC/build"
+BUILD="${BUILD_DIR:-$SRC/build}"
 
 # Задание путей к тулчейну
-LLVM_BIN="/usr/lib/llvm-${LLVM_VER}/bin"
-LLVM_CMAKE="/usr/lib/llvm-${LLVM_VER}/lib/cmake/llvm"
+LLVM_BIN="${LLVM_BIN_OVERRIDE:-/usr/lib/llvm-${LLVM_VER}/bin}"
+LLVM_CMAKE="${LLVM_CMAKE_OVERRIDE:-/usr/lib/llvm-${LLVM_VER}/lib/cmake/llvm}"
+CC="${CC_OVERRIDE:-clang-${LLVM_VER}}"
+CXX="${CXX_OVERRIDE:-clang++-${LLVM_VER}}"
 
 # Явно укажем clang-scan-deps, чтобы не зависеть от PATH
 SCAN_DEPS="$LLVM_BIN/clang-scan-deps"
@@ -46,8 +48,8 @@ CMAKE_EXTRA_ARGS=("${CMAKE_EXTRA_ARGS[@]:-}")
 cd "$SRC"
 cmake -S "$SRC" -B "$BUILD" -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_C_COMPILER=clang-${LLVM_VER} \
-  -DCMAKE_CXX_COMPILER=clang++-${LLVM_VER} \
+  -DCMAKE_C_COMPILER="$CC" \
+  -DCMAKE_CXX_COMPILER="$CXX" \
   -DCMAKE_CXX_COMPILER_CLANG_SCAN_DEPS="$SCAN_DEPS" \
   -DLLVM_DIR="$LLVM_CMAKE" \
   "${CMAKE_EXTRA_ARGS[@]}"

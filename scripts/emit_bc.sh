@@ -22,12 +22,16 @@ if [ ! -n "${DEST_DIR:-}" ]; then
   echo "DEST_DIR not defined!" >&2
   exit 1
 fi
+if [ ! -x "${LLVM_BIN}/clang" ]; then
+  echo "clang not found at ${LLVM_BIN}/clang. Build/install the requested LLVM toolchain first." >&2
+  exit 1
+fi
 
 mkdir -p "$DEST_DIR"
 count=$(find "$DEST_DIR" -name "*.bc" 2>/dev/null | wc -l)
 if [ "$count" -gt 0 ]; then
   echo "$DEST_DIR already has $count .bc file(s), skipping."
-  exit 0
+  return 0 2>/dev/null || exit 0
 fi
 
 # Find all source files recursively in SRC_DIR directory

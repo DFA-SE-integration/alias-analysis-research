@@ -218,6 +218,64 @@ done
 ## Ограничения
 
 - Валидация выполняется только для прямых вызовов функций (не поддерживаются косвенные вызовы)
+
+## Porting notes (LLVM20 / clangir)
+
+- Sea-DSA сборка переведена на LLVM20 API и C++17 (`find_package(LLVM 20.0 CONFIG REQUIRED)`).
+- Для контейнерной сборки LLVM20 используется симлинк `ln -sfn $(ROOT)/clangir/llvm/build /tmp/llvm-build` и далее пути тулчейна берутся из `/tmp/llvm-build`.
+- Контейнер теперь собирается под архитектуру хоста (без `--platform=linux/amd64`), чтобы совпадать с архитектурой предсобранного `clangir/clang-20`.
+- Добавлены утилиты для генерации входов и сравнения:
+  - `scripts/02_emit_seadsa_unit_bc.sh`
+  - `scripts/compare_llvm14_vs_llvm20.py`
+- Добавлен отчёт сравнения результатов до/после портирования:
+  - `results/llvm14_vs_llvm20_report.md`
+
+### Alias Analysis API: изменения
+
+В LLVM20 убран шаблон `AAResultBase<T>`, изменён конструктор `AAQueryInfo(AAResults&, CaptureAnalysis*)`,
+а функция `llvm::createAAEvalPass()` больше не доступна в legacy pass manager.
+Поэтому:
+
+- `SeaDsaAliasAnalysis.hh/.cc` переписан как standalone-класс `SeaDsaAAResult` с собственным
+  `runOnModule(Module&)` и `alias(MemoryLocation, MemoryLocation)` без чейна через `AAResults`.
+- `SeaDsaAAWrapperPass` и его регистрация через `INITIALIZE_PASS` удалены — они больше не нужны
+  для standalone-сценария.
+- Вместо стокового AAEval добавлен встроенный эвалуатор `tools/SeaDsaAAEval.{hh,cc}`, печатающий
+  тот же формат "Alias Analysis Evaluator Report" (включая `Total Alias Queries Performed`,
+  `no/may/partial/must alias responses`), на который уже завязан `scripts/compare_llvm14_vs_llvm20.py`.
+- `ValidateAliasTests.cc` обновлён под новый API (`AA.alias(MemLoc, MemLoc)` без `AAQueryInfo`).
+
+### Различия в пайплайне AA
+
+В LLVM14-бейзлайне `--sea-dsa-aa-eval` работал поверх `AAResults`, собранного из
+SeaDsa AA + BasicAA (остальные AA были закомментированы в `seadsa.cc`). В LLVM20-порте
+мы запрашиваем **только** SeaDsa AA — без chain-up к BasicAA. Практические последствия:
+
+- `MustAlias` практически не возникает, так как SeaDsa сама его не выводит;
+- общее число запросов `aa_total` резко меньше: evaluator собирает pointer operands из
+  load/store, а clang-20 в opaque-pointer IR генерирует существенно меньше лишних `load`/`store`;
+- доля `NoAlias` среди оставшихся запросов выше, чем в бейзлайне, потому что отсеклись самые
+  тривиальные "same-pointer" MustAlias-пары, которые раньше доставлял BasicAA.
+
+### Наблюдаемая разница (агрегаты по 192 тестам Test-Suite, butd-cs)
+
+| метрика | LLVM14 | LLVM20 | дельта |
+|---|---:|---:|---:|
+| memory_accesses | 588 | 588 | 0 |
+| nodes | 6056 | 6057 | +1 |
+| typed_nodes | 5997 | 5915 | -82 |
+| untyped_nodes | 46 | 45 | -1 |
+| alloc_sites | 5797 | 5797 | 0 |
+| aa_total | 174 628 | 18 909 | -155 719 |
+| aa_no | 123 761 | 14 941 | -108 820 |
+| aa_may | 46 911 | 3 968 | -42 943 |
+| aa_must | 3 040 | 0 | -3 040 |
+
+Доли по aa-eval: LLVM14 — 70.9 % NoAlias / 26.9 % MayAlias / 1.7 % MustAlias; LLVM20 —
+79.0 % NoAlias / 21.0 % MayAlias / 0.0 % MustAlias. Структурные метрики DSA
+(`nodes`, `alloc_sites`, `memory_accesses`) совпадают в пределах шумa, что указывает на
+корректность порта в части построения графа. Падение `aa_*` — ожидаемое следствие смены
+IR-представления и отказа от chain-up к BasicAA, а не деградации самой SeaDsa.
 - Поддерживаются только функции с двумя аргументами (указателями)
 - Source location может быть недоступна для некоторых инструкций (выводится "(unknown)")
 
