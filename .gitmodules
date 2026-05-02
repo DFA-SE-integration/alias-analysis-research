@@ -14,3 +14,8 @@
 	path = phasar
 	url = git@github.com:DFA-SE-integration/phasar.git
 	shallow = true
+[submodule "sea-dsa-llvm20"]
+	path = sea-dsa-llvm20
+	url = git@github.com:DFA-SE-integration/sea-dsa.git
+	branch = llvm-20
+	shallow = true
